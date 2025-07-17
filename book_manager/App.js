@@ -5,24 +5,25 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Provider as PaperProvider } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// ✅ Hiện đang test UserManagerScreen
+// ✅ Quản lý người dùng
 import UserManagerScreen from './src/screens/seller/UserManagementScreen';
 
-// ✅ Màn hình hồ sơ người dùng
+// ✅ Hồ sơ người dùng
 import MyProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
-// 🚫 Tạm thời ẩn các màn hình khác
-// import MyBooksScreen from './src/screens/books/MyBooksScreen';
-// import AddBookScreen from './src/screens/books/AddBookScreen';
-// import EditBookScreen from './src/screens/books/EditBookScreen';
-// import BookDetailScreen from './src/screens/books/BookDetailScreen';
-// import RevenueScreen from './src/screens/seller/RevenueScreen';
+// ✅ Quản lý sách
+import MyBooksScreen from './src/screens/books/MyBooksScreen';
+import AddBookScreen from './src/screens/books/AddBookScreen';
+import EditBookScreen from './src/screens/books/EditBookScreen';
+import BookDetailScreen from './src/screens/books/BookDetailScreen';
+// ✅ Thống kê doanh thu
+
+import RevenueScreen from './src/screens/seller/RevenueScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-/*
-// 📦 Tab quản lý sách (ẩn tạm)
+// ✅ Stack quản lý sách
 function BookStack() {
   return (
     <Stack.Navigator>
@@ -31,13 +32,24 @@ function BookStack() {
         component={MyBooksScreen}
         options={{ title: '📚 My Books' }}
       />
-      <Stack.Screen name="AddBook" component={AddBookScreen} />
-      <Stack.Screen name="EditBook" component={EditBookScreen} />
-      <Stack.Screen name="BookDetail" component={BookDetailScreen} />
+      <Stack.Screen
+        name="AddBook"
+        component={AddBookScreen}
+        options={{ title: '➕ Add Book' }}
+      />
+      <Stack.Screen
+        name="EditBook"
+        component={EditBookScreen}
+        options={{ title: '✏️ Edit Book' }}
+      />
+      <Stack.Screen
+        name="BookDetail"
+        component={BookDetailScreen}
+        options={{ title: '📖 Book Details' }}
+      />
     </Stack.Navigator>
   );
 }
-*/
 
 // ✅ Stack cho các màn hình hồ sơ (profile)
 function ProfileStack() {
@@ -83,21 +95,19 @@ export default function App() {
             options={{ title: 'My Profile' }}
           />
 
-          {/*
-          // 🚫 Tab quản lý sách (ẩn tạm thời để test)
+          {/* ✅ Quản lý sách */}
           <Tab.Screen
             name="Books"
             component={BookStack}
             options={{ title: 'Books' }}
           />
           
-          // 🚫 Tab doanh thu (ẩn tạm thời để test)
+          {/* ✅ Thống kê doanh thu */}
           <Tab.Screen
             name="Revenue"
             component={RevenueScreen}
             options={{ title: 'Revenue' }}
           />
-          */}
         </Tab.Navigator>
       </NavigationContainer>
     </PaperProvider>

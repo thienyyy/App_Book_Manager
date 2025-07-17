@@ -1,80 +1,173 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { getBookById, editBook } from '../../api/book';
-import { TextInput, Button, Snackbar, ActivityIndicator } from 'react-native-paper';
+// screens/books/EditBookScreen.js
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Button,
+  Alert,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { updateBook, getBookById } from "../../api/book";
 
-export default function EditBookScreen({ route, navigation }) {
+const EditBookScreen = ({ route, navigation }) => {
   const { id } = route.params;
   const [book, setBook] = useState(null);
+  const [form, setForm] = useState({
+    title: "",
+    author: "",
+    price: "",
+    description: "",
+    category: "",
+    stock: "",
+  });
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ visible: false, message: '' });
+
+  const fetchBook = async () => {
+    try {
+      setLoading(true);
+      const { data } = await getBookById(id);
+      setBook(data);
+      setForm({
+        title: data.title,
+        author: data.author,
+        price: data.price.toString(),
+        description: data.description,
+        category: data.category,
+        stock: data.stock.toString(),
+      });
+    } catch (error) {
+      Alert.alert("Lỗi", "Không thể tải dữ liệu sách");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    getBookById(id)
-      .then((res) => setBook(res.data.book || res.data))
-      .catch(() => setSnackbar({ visible: true, message: 'Failed to load book' }));
+    fetchBook();
   }, []);
 
-  if (!book) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  const handleChange = (name, value) => {
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleSubmit = async () => {
+    const { title, author, price, description, category, stock } = form;
+    if (!title || !author || !price || !description || !category) {
+      Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await updateBook(id, {
+        title,
+        author,
+        price: parseFloat(price),
+        description,
+        category,
+        stock: parseInt(stock),
+      });
+      Alert.alert("Thành công", "Cập nhật sách thành công", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+    } catch (error) {
+      Alert.alert("Lỗi", error.message || "Không thể cập nhật sách");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && !book) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
-    <Formik
-      enableReinitialize
-      initialValues={book}
-      validationSchema={Yup.object({
-        title: Yup.string().required('Title is required'),
-        author: Yup.string().required('Author is required'),
-        price: Yup.number().required('Price is required').min(0),
-        category: Yup.string().required('Category is required'),
-        stock: Yup.number().min(0, 'Stock must be at least 0'),
-      })}
-      onSubmit={async (values) => {
-        try {
-          setLoading(true);
-          await editBook(id, values);
-          navigation.goBack();
-        } catch (error) {
-          setSnackbar({ visible: true, message: 'Failed to update book' });
-        } finally {
-          setLoading(false);
-        }
-      }}
-    >
-      {({ handleChange, handleSubmit, values, errors, touched }) => (
-        <View style={styles.form}>
-          <TextInput label="Title" mode="outlined" value={values.title} onChangeText={handleChange('title')} style={styles.input} />
-          {touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.label}>Tên sách</Text>
+      <TextInput
+        style={styles.input}
+        value={form.title}
+        onChangeText={(text) => handleChange("title", text)}
+      />
 
-          <TextInput label="Author" mode="outlined" value={values.author} onChangeText={handleChange('author')} style={styles.input} />
-          {touched.author && errors.author && <Text style={styles.error}>{errors.author}</Text>}
+      <Text style={styles.label}>Tác giả</Text>
+      <TextInput
+        style={styles.input}
+        value={form.author}
+        onChangeText={(text) => handleChange("author", text)}
+      />
 
-          <TextInput label="Price" mode="outlined" keyboardType="numeric" value={String(values.price)} onChangeText={handleChange('price')} style={styles.input} />
-          {touched.price && errors.price && <Text style={styles.error}>{errors.price}</Text>}
+      <Text style={styles.label}>Giá</Text>
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        value={form.price}
+        onChangeText={(text) => handleChange("price", text)}
+      />
 
-          <TextInput label="Category" mode="outlined" value={values.category} onChangeText={handleChange('category')} style={styles.input} />
-          {touched.category && errors.category && <Text style={styles.error}>{errors.category}</Text>}
+      <Text style={styles.label}>Mô tả</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        multiline
+        numberOfLines={4}
+        value={form.description}
+        onChangeText={(text) => handleChange("description", text)}
+      />
 
-          <TextInput label="Stock" mode="outlined" keyboardType="numeric" value={String(values.stock)} onChangeText={handleChange('stock')} style={styles.input} />
+      <Text style={styles.label}>Loại</Text>
+      <TextInput
+        style={styles.input}
+        value={form.category}
+        onChangeText={(text) => handleChange("category", text)}
+      />
 
-          <TextInput label="Description" mode="outlined" multiline value={values.description} onChangeText={handleChange('description')} style={styles.input} />
+      <Text style={styles.label}>Số lượng</Text>
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        value={form.stock}
+        onChangeText={(text) => handleChange("stock", text)}
+      />
 
-          <TextInput label="Image URL" mode="outlined" value={values.image} onChangeText={handleChange('image')} style={styles.input} />
-
-          <Button mode="contained" onPress={handleSubmit} loading={loading} disabled={loading}>Update Book</Button>
-
-          <Snackbar visible={snackbar.visible} onDismiss={() => setSnackbar({ visible: false, message: '' })}>
-            {snackbar.message}
-          </Snackbar>
-        </View>
-      )}
-    </Formik>
+      <Button title="Lưu thay đổi" onPress={handleSubmit} />
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  form: { padding: 20 },
-  input: { marginBottom: 12 },
-  error: { color: 'red', fontSize: 13, marginBottom: 10 },
+  container: {
+    padding: 20,
+    backgroundColor: "#fff",
+  },
+  label: {
+    marginBottom: 5,
+    fontWeight: "bold",
+    color: "#444",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#f9f9f9",
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
+
+export default EditBookScreen;

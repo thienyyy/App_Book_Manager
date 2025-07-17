@@ -1,102 +1,119 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { FlatList, Snackbar, ActivityIndicator, Text, FAB } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-
-import BookCard from '../../components/BookCard';
+import { View, Text, FlatList, StyleSheet, Button, Alert, RefreshControl } from 'react-native';
 import { getMyBooks, deleteBook } from '../../api/book';
+import BookCard from '../../components/BookCard';
 
-const MyBooksScreen = () => {
+const MyBooksScreen = ({ navigation }) => {
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ visible: false, message: '' });
-  const navigation = useNavigation();
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchBooks = async () => {
+ const fetchBooks = async () => {
+    setRefreshing(true);
     try {
-      setLoading(true);
-      const res = await getMyBooks();
-      if (res.data?.books) {
-        setBooks(res.data.books);
+      const response = await getMyBooks();
+      if (response.data.success) {
+        setBooks(response.data.books);
       } else {
-        throw new Error('Invalid data format');
+        Alert.alert('Lỗi', response.data.message || 'Không thể tải sách.');
       }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setSnackbar({ visible: true, message: 'Failed to load books' });
+    } catch (err) {
+      console.log('📛 Lỗi khi tải sách:', err);
+      Alert.alert('Lỗi', 'Lỗi khi tải sách.');
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this book?', [
-      { text: 'Cancel' },
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const handleDelete = async (bookId) => {
+    Alert.alert('Xác nhận', 'Bạn có chắc muốn xoá sách này?', [
+      { text: 'Huỷ' },
       {
-        text: 'Delete',
-        style: 'destructive',
+        text: 'Xoá',
         onPress: async () => {
           try {
-            await deleteBook(id);
-            fetchBooks();
+            const response = await deleteBook(bookId);
+            if (response.data.success) {
+              Alert.alert('Thành công', 'Đã xoá sách.');
+              fetchBooks();
+            } else {
+              Alert.alert('Lỗi', response.data.message || 'Không xoá được sách.');
+            }
           } catch (err) {
-            setSnackbar({ visible: true, message: 'Delete failed' });
+            Alert.alert('Lỗi', 'Lỗi khi xoá sách.');
           }
         },
       },
     ]);
   };
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', fetchBooks);
-    return unsubscribe;
-  }, [navigation]);
+  const renderItem = ({ item }) => (
+    <BookCard
+      book={item}
+      onPress={() => navigation.navigate('BookDetail', { id: item._id })}
+      onEdit={() => navigation.navigate('EditBook', { id: item._id })}
+      onDelete={() => handleDelete(item._id)}
+    />
+  );
 
   return (
-    <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator style={{ marginTop: 40 }} />
-      ) : books.length === 0 ? (
-        <Text style={styles.empty}>📭 No books found</Text>
-      ) : (
-        <FlatList
-          data={books}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <BookCard
-              book={item}
-              onEdit={(id) => navigation.navigate('EditBook', { id })}
-              onDelete={(id) => handleDelete(id)}
-              onDetail={(id) => navigation.navigate('BookDetail', { id })}
-            />
-          )}
-        />
-      )}
-
-      <FAB
-        icon="plus"
-        label="Add Book"
-        style={styles.fab}
-        onPress={() => navigation.navigate('AddBook')}
-      />
-
-      <Snackbar
-        visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        duration={3000}
-      >
-        {snackbar.message}
-      </Snackbar>
+     <View style={styles.container}>
+    <View style={styles.buttonWrapper}>
+      <Button title="➕ Thêm sách mới" color="#1d4ed8" onPress={() => navigation.navigate('AddBook')} />
     </View>
+
+    {books.length === 0 ? (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>📚 Bạn chưa có sách nào.</Text>
+      </View>
+    ) : (
+      <FlatList
+        data={books}
+        keyExtractor={(item) => item._id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchBooks} />}
+      />
+    )}
+  </View>
   );
 };
 
 export default MyBooksScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  list: { paddingBottom: 80 },
-  empty: { textAlign: 'center', marginTop: 50, fontSize: 16, color: '#888' },
-  fab: { position: 'absolute', right: 20, bottom: 30 },
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb', // nền sáng nhẹ
+    padding: 16,
+  },
+  buttonWrapper: {
+    marginBottom: 16,
+    borderRadius: 10,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 4, // Android shadow
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6b7280',
+    fontStyle: 'italic',
+  },
 });
+
+

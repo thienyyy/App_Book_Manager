@@ -1,78 +1,67 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-import { Card, Text, Button } from 'react-native-paper';
+import { View, Text, Button, Image, StyleSheet } from 'react-native';
 
-const BookCard = ({ book, onEdit, onDelete, onDetail }) => {
-  const {
-    _id,
-    title = 'No Title',
-    author = 'Unknown',
-    price = 0,
-    description = '',
-    image,
-  } = book;
+const BookCard = ({ book, onEdit, onDelete, onPress }) => (
+  <View style={styles.card}>
+    {book.image && <Image source={{ uri: book.image }} style={styles.image} />}
+    
+    <Text style={styles.title}>{book.title}</Text>
+    <Text style={styles.author}>Tác giả: {book.author}</Text>
+    <Text style={styles.price}>Giá: ${book.price}</Text>
 
-  const imageURL =
-    image && image.startsWith('http')
-      ? image
-      : image
-      ? `http://192.168.2.15:3000/${image.replace(/\\/g, '/')}`
-      : 'https://via.placeholder.com/150';
-
-  return (
-    <Card style={styles.card} mode="elevated">
-      <View style={styles.row}>
-        <Image source={{ uri: imageURL }} style={styles.img} />
-        <View style={styles.info}>
-          <Text style={styles.title}>{title}</Text>
-          <Text>Author: {author}</Text>
-          <Text>Price: {price.toLocaleString()} VND</Text>
-          <Text numberOfLines={2}>Description: {description}</Text>
-
-          <View style={styles.actions}>
-            <Button onPress={() => onDetail(_id)}>📖 View</Button>
-            <Button onPress={() => onEdit(_id)}>✏️ Edit</Button>
-            <Button onPress={() => onDelete(_id)} textColor="red">
-              🗑️ Delete
-            </Button>
-          </View>
-        </View>
-      </View>
-    </Card>
-  );
-};
+    <View style={styles.buttonWrapper}>
+      {onPress && <View style={styles.button}><Button title="📖 Xem chi tiết" onPress={onPress} color="#2196F3" /></View>}
+      {onEdit && <View style={styles.button}><Button title="✏️ Sửa" onPress={onEdit} color="#4CAF50" /></View>}
+      {onDelete && <View style={styles.button}><Button title="🗑️ Xoá" onPress={onDelete} color="#F44336" /></View>}
+    </View>
+  </View>
+);
 
 export default BookCard;
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: 12,
-    marginHorizontal: 10,
+    marginVertical: 10,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
     borderRadius: 12,
-    padding: 10,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  row: {
-    flexDirection: 'row',
-  },
-  img: {
-    width: 90,
-    height: 100,
+  image: {
+    height: 140,
+    width: '100%',
+    resizeMode: 'cover',
     borderRadius: 8,
-    marginRight: 10,
-  },
-  info: {
-    flex: 1,
-    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
+    color: '#333',
     marginBottom: 4,
   },
-  actions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 6,
-    gap: 6,
+  author: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  price: {
+    fontSize: 15,
+    color: '#2e7d32',
+    marginBottom: 12,
+  },
+  buttonWrapper: {
+    gap: 8,
+  },
+  button: {
+    marginVertical: 4,
+    borderRadius: 6,
+    overflow: 'hidden',
   },
 });
