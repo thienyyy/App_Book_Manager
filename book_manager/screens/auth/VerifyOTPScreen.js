@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import axios from '../../api/axiosInstance'; // Đảm bảo đúng đường dẫn
+import axios from '../../api/axiosInstance'; 
 
 const VerifyOTPScreen = () => {
   const [otp, setOtp] = useState('');
