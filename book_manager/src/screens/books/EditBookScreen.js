@@ -1,4 +1,3 @@
-// screens/books/EditBookScreen.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -14,7 +13,6 @@ import { updateBook, getBookById } from "../../api/book";
 
 const EditBookScreen = ({ route, navigation }) => {
   const { id } = route.params;
-  const [book, setBook] = useState(null);
   const [form, setForm] = useState({
     title: "",
     author: "",
@@ -24,63 +22,84 @@ const EditBookScreen = ({ route, navigation }) => {
     stock: "",
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const fetchBook = async () => {
     try {
-      setLoading(true);
-      const { data } = await getBookById(id);
-      setBook(data);
+      setInitialLoading(true);
+      const res = await getBookById(id);
+      const book = res.data.book;
+
       setForm({
-        title: data.title,
-        author: data.author,
-        price: data.price.toString(),
-        description: data.description,
-        category: data.category,
-        stock: data.stock.toString(),
+        title: book.title || "",
+        author: book.author || "",
+        price: book.price?.toString() || "0",
+        description: book.description || "",
+        category: book.category || "",
+        stock: book.stock?.toString() || "0",
       });
     } catch (error) {
-      Alert.alert("Lỗi", "Không thể tải dữ liệu sách");
+      console.error("❌ Lỗi khi tải sách:", error);
+      Alert.alert("Lỗi", "Không thể tải dữ liệu sách.");
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBook();
-  }, []);
+    if (id) fetchBook();
+  }, [id]);
 
   const handleChange = (name, value) => {
-    setForm({ ...form, [name]: value });
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async () => {
     const { title, author, price, description, category, stock } = form;
-    if (!title || !author || !price || !description || !category) {
-      Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin");
-      return;
+
+    if (!title || !author || !price || !description || !category || !stock) {
+      return Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin.");
+    }
+
+    if (isNaN(price) || parseFloat(price) < 0) {
+      return Alert.alert("Lỗi", "Giá sách phải là số không âm.");
+    }
+
+    if (isNaN(stock) || parseInt(stock) < 0) {
+      return Alert.alert("Lỗi", "Số lượng phải là số nguyên không âm.");
     }
 
     try {
       setLoading(true);
-      await updateBook(id, {
+      const updatedBook = {
         title,
         author,
         price: parseFloat(price),
         description,
         category,
         stock: parseInt(stock),
-      });
-      Alert.alert("Thành công", "Cập nhật sách thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      };
+
+      const res = await updateBook(id, updatedBook);
+      if (res.data?.success) {
+        Alert.alert("Thành công", "Cập nhật sách thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", res.data?.message || "Cập nhật thất bại.");
+      }
     } catch (error) {
-      Alert.alert("Lỗi", error.message || "Không thể cập nhật sách");
+      console.error("❌ Lỗi khi cập nhật:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật sách.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && !book) {
+  if (initialLoading) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -89,12 +108,16 @@ const EditBookScreen = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.label}>Tên sách</Text>
       <TextInput
         style={styles.input}
         value={form.title}
         onChangeText={(text) => handleChange("title", text)}
+        autoCapitalize="sentences"
       />
 
       <Text style={styles.label}>Tác giả</Text>
@@ -102,6 +125,7 @@ const EditBookScreen = ({ route, navigation }) => {
         style={styles.input}
         value={form.author}
         onChangeText={(text) => handleChange("author", text)}
+        autoCapitalize="words"
       />
 
       <Text style={styles.label}>Giá</Text>
@@ -110,6 +134,7 @@ const EditBookScreen = ({ route, navigation }) => {
         keyboardType="numeric"
         value={form.price}
         onChangeText={(text) => handleChange("price", text)}
+        inputMode="numeric"
       />
 
       <Text style={styles.label}>Mô tả</Text>
@@ -119,13 +144,15 @@ const EditBookScreen = ({ route, navigation }) => {
         numberOfLines={4}
         value={form.description}
         onChangeText={(text) => handleChange("description", text)}
+        autoCapitalize="sentences"
       />
 
-      <Text style={styles.label}>Loại</Text>
+      <Text style={styles.label}>Thể loại</Text>
       <TextInput
         style={styles.input}
         value={form.category}
         onChangeText={(text) => handleChange("category", text)}
+        autoCapitalize="words"
       />
 
       <Text style={styles.label}>Số lượng</Text>
@@ -134,9 +161,14 @@ const EditBookScreen = ({ route, navigation }) => {
         keyboardType="numeric"
         value={form.stock}
         onChangeText={(text) => handleChange("stock", text)}
+        inputMode="numeric"
       />
 
-      <Button title="Lưu thay đổi" onPress={handleSubmit} />
+      <Button
+        title={loading ? "Đang lưu..." : "Lưu thay đổi"}
+        onPress={handleSubmit}
+        disabled={loading}
+      />
     </ScrollView>
   );
 };

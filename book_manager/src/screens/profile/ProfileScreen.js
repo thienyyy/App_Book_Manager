@@ -16,7 +16,7 @@ import {
 import { getProfile } from '../../api/user';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 
-const BASE_URL = 'http://192.168.3.5:3000'; // 👉 đổi theo IP backend thật
+const BASE_URL = 'http://172.16.40.35:3000'; // 👉 đổi theo IP backend thật
 
 const ProfileScreen = () => {
   const [profile, setProfile] = useState(null);

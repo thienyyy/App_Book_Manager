@@ -1,38 +1,38 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = 'http://192.168.3.5:3000/api'; // đổi thành IP nếu test trên device
+// Token test lấy từ Postman (gắn trực tiếp):
+const HARDCODED_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1MzEwNzIzMiwiZXhwIjoxNzUzMTA4NDMyfQ.EEjt08cxgBdH7XnZE-R2voDl22pbABcH6wdQwSz44Ko';
 
-// Lấy token từ storage
-export const getToken = async () => {
-  return await SecureStore.getItemAsync('token');
+const API_BASE_URL = 'http://172.16.40.35:3000/api/seller';
+
+// 📊 Lấy tổng quan doanh thu seller
+export const getOverviewRevenue = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/revenue`, {
+      headers: {
+        Authorization: HARDCODED_TOKEN,
+      },
+    });
+    // res.data = { totalRevenue, totalBooksSold, ... }
+    return res.data;
+  } catch (error) {
+    console.error('Lỗi lấy doanh thu tổng quan:', error.message);
+    throw error;
+  }
 };
 
-export const getRevenueOverview = async () => {
+// 📚 Lấy danh sách doanh thu theo từng sách
+export const getBookRevenueList = async () => {
   try {
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1Mjc3Mjc4NiwiZXhwIjoxNzUyNzczOTg2fQ.h-hSnPa4Ps-bIxCJE8jPQHHn6G3QNsYeF6DtOxkVM5c"; // Lấy token đúng từ storage
-
-    const response = await axios.get(`${BASE_URL}/seller/revenue`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await axios.get(`${API_BASE_URL}/revenue/books`, {
+      headers: {
+        Authorization: HARDCODED_TOKEN,
+      },
     });
-
-    if (response.data?.success && response.data?.revenue) {
-      const revenue = response.data.revenue;
-
-      return {
-        success: true,
-        totalRevenue: revenue.totalRevenue || 0,
-        orders: revenue.recentOrders || [],
-      };
-    } else {
-      throw new Error(response.data?.message || 'Failed to fetch revenue');
-    }
+    // res.data = { bookStats: [...] }
+    return res.data.bookStats;
   } catch (error) {
-    console.error('Revenue API error:', error.message);
-    throw new Error(
-      error.response?.data?.message ||
-        error.message ||
-        'Server error when fetching revenue'
-    );
+    console.error('Lỗi lấy doanh thu từng sách:', error.message);
+    throw error;
   }
 };

@@ -11,14 +11,16 @@ import UserManagerScreen from './src/screens/seller/UserManagementScreen';
 // ✅ Hồ sơ người dùng
 import MyProfileScreen from './src/screens/profile/ProfileScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
+
 // ✅ Quản lý sách
 import MyBooksScreen from './src/screens/books/MyBooksScreen';
 import AddBookScreen from './src/screens/books/AddBookScreen';
 import EditBookScreen from './src/screens/books/EditBookScreen';
 import BookDetailScreen from './src/screens/books/BookDetailScreen';
-// ✅ Thống kê doanh thu
 
-import RevenueScreen from './src/screens/seller/RevenueScreen';
+// ✅ Thống kê doanh thu mới
+import SellerRevenueScreen from './src/screens/seller/SellerRevenueScreen';
+import BookRevenueListScreen from './src/screens/seller/BookRevenueListScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,36 +29,30 @@ const Tab = createBottomTabNavigator();
 function BookStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="MyBooks"
-        component={MyBooksScreen}
-        options={{ title: '📚 My Books' }}
-      />
-      <Stack.Screen
-        name="AddBook"
-        component={AddBookScreen}
-        options={{ title: '➕ Add Book' }}
-      />
-      <Stack.Screen
-        name="EditBook"
-        component={EditBookScreen}
-        options={{ title: '✏️ Edit Book' }}
-      />
-      <Stack.Screen
-        name="BookDetail"
-        component={BookDetailScreen}
-        options={{ title: '📖 Book Details' }}
-      />
+      <Stack.Screen name="MyBooks" component={MyBooksScreen} options={{ title: '📚 My Books' }} />
+      <Stack.Screen name="AddBook" component={AddBookScreen} options={{ title: '➕ Add Book' }} />
+      <Stack.Screen name="EditBook" component={EditBookScreen} options={{ title: '✏️ Edit Book' }} />
+      <Stack.Screen name="BookDetail" component={BookDetailScreen} options={{ title: '📖 Book Details' }} />
     </Stack.Navigator>
   );
 }
 
-// ✅ Stack cho các màn hình hồ sơ (profile)
+// ✅ Stack hồ sơ
 function ProfileStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="MyProfile" component={MyProfileScreen} options={{ title: 'My Profile' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Edit Profile' }} />
+    </Stack.Navigator>
+  );
+}
+
+// ✅ Stack thống kê doanh thu
+function RevenueStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="SellerRevenue" component={SellerRevenueScreen} options={{ title: '📈 Revenue Overview' }} />
+      <Stack.Screen name="BookRevenueList" component={BookRevenueListScreen} options={{ title: '📚 Book Revenue' }} />
     </Stack.Navigator>
   );
 }
@@ -80,34 +76,10 @@ export default function App() {
             },
           })}
         >
-
-          {/* ✅ Tab quản lý người dùng (đang bật) */}
-          <Tab.Screen
-            name="Users"
-            component={UserManagerScreen}
-            options={{ title: 'User Management' }}
-          />
-
-          {/* ✅ Tab hồ sơ cá nhân */}
-          <Tab.Screen
-            name="Profile"
-            component={ProfileStack}
-            options={{ title: 'My Profile' }}
-          />
-
-          {/* ✅ Quản lý sách */}
-          <Tab.Screen
-            name="Books"
-            component={BookStack}
-            options={{ title: 'Books' }}
-          />
-          
-          {/* ✅ Thống kê doanh thu */}
-          <Tab.Screen
-            name="Revenue"
-            component={RevenueScreen}
-            options={{ title: 'Revenue' }}
-          />
+          <Tab.Screen name="Users" component={UserManagerScreen} options={{ title: 'User Management' }} />
+          <Tab.Screen name="Profile" component={ProfileStack} options={{ title: 'My Profile' }} />
+          <Tab.Screen name="Books" component={BookStack} options={{ title: 'Books' }} />
+          <Tab.Screen name="Revenue" component={RevenueStack} options={{ title: 'Revenue' }} />
         </Tab.Navigator>
       </NavigationContainer>
     </PaperProvider>

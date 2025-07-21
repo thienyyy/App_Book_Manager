@@ -13,7 +13,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { getProfile, updateProfile } from '../../api/user';
 
-const BASE_URL = 'http://192.168.3.5:3000'; // 🔁 IP backend
+const BASE_URL = 'http://172.16.40.35:3000'; // 🔁 IP backend
 
 const EditProfileScreen = ({ navigation }) => {
   const [profile, setProfile] = useState(null);

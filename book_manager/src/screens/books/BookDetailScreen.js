@@ -3,20 +3,20 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Image, Alert } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { getBookById } from "../../api/book";
-import { getToken } from "../../utils/tokenStorage"; // ✅
 
 
 const BookDetailScreen = () => {
   const route = useRoute();
-  const { bookId } = route.params;
+  const { id } = route.params;
+
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchBook = async () => {
     try {
-      const token = await getToken(); // ✅ đúng
-      const data = await getBookById(bookId, token);
-      setBook(data);
+      const data = await getBookById(id);
+      console.log(data.data);
+      setBook(data.data.book);
     } catch (error) {
       console.error("Lỗi khi lấy thông tin sách:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin sách");
@@ -26,7 +26,7 @@ const BookDetailScreen = () => {
   };
 
 useEffect(() => {
-  fetchBook(); // gọi hàm fetchBook đã khai báo ở trên
+  fetchBook();
 }, []);
 
 
@@ -47,7 +47,10 @@ useEffect(() => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
       {book.image && (
         <Image source={{ uri: book.image }} style={styles.image} />
       )}
