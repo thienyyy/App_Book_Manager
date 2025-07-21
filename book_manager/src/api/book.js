@@ -8,7 +8,7 @@ const API = axios.create({
 });
 
 API.interceptors.request.use(async (config) => {
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1MzEwNzIzMiwiZXhwIjoxNzUzMTA4NDMyfQ.EEjt08cxgBdH7XnZE-R2voDl22pbABcH6wdQwSz44Ko";
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1MzEwOTkzNiwiZXhwIjoxNzUzMTExMTM2fQ.jnYlB5VkcA_kOzxjL0x2ZapgCZFS-ubjACRAU6O7lnc";
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
