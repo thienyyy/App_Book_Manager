@@ -12,7 +12,7 @@ import {
 import { Card } from 'react-native-paper';
 import { getAllUsers } from '../../api/user';
 
-const BASE_URL = 'http://172.16.40.35:3000'; // 🔁 Đổi theo IP backend thật
+const BASE_URL = 'http://172.16.40.25:3000'; // 🔁 Đổi theo IP backend thật
 
 const UserManagementScreen = () => {
   const [users, setUsers] = useState([]);

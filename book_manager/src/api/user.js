@@ -1,13 +1,14 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://172.16.40.35:3000/api/users',
+  baseURL: 'http://172.16.40.25:3000/api/users',
   timeout: 10000,
 });
 
 // ✅ Gắn token test tạm thời (có thể thay bằng getToken() từ AsyncStorage nếu cần động)
 API.interceptors.request.use(async (config) => {
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1MzEwNzIzMiwiZXhwIjoxNzUzMTA4NDMyfQ.EEjt08cxgBdH7XnZE-R2voDl22pbABcH6wdQwSz44Ko"; 
+  const token = await AsyncStorage.getItem('authToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
