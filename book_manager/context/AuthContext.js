@@ -38,9 +38,12 @@ export const AuthProvider = ({ children }) => {
     console.log('[DEBUG] Bắt đầu loadProfile');
     try {
       const res = await getProfile();
+      console.log(res);
+
       const userObj = res.data?.data?.user || res.data?.user || res.data;
+
       console.log('[DEBUG] loadProfile thành công:', userObj);
-      setUser(userObj);
+      setUser(userObj.data);
     } catch (e) {
       console.log('[DEBUG] loadProfile thất bại:', e.message);
       if (fallbackUser) {

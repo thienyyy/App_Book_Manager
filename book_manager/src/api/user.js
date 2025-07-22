@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://172.16.40.25:3000/api/users',
+  baseURL: 'http://172.16.40.35:3000/api/users',
   timeout: 10000,
 });
 
@@ -38,10 +38,16 @@ export const updateProfile = (data) => {
   }).then(res => res.data);
 };*/
 export const updateProfile = (data) => {
-  return API.put('/me', data).then(res => res.data);
+  
+  return API.put('/me/UP', data).then(res => res.data);
 };
 
 
 // ✅ DELETE user theo ID (tuỳ quyền)
 export const deleteUserById = (id) =>
   API.delete(`/${id}`).then(res => res.data);
+export const toggleBanUser = async (userId, is_banned) => {
+  const res = await API.put(`/update/status/${userId}`, { is_banned });
+  
+  return res.data;
+};

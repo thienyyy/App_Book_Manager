@@ -18,10 +18,9 @@ import HomeScreen from "./src/screens/auth/HomeScreen";
 import UserManagerScreen from "./src/screens/seller/UserManagementScreen";
 
 // Profile Screens
-import MyProfileScreen from "./src/screens/profile/profileScreen";
+import MyProfileScreen from "./src/screens/profile/ProfileScreen";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
-import EditProfileScreen from "./src/screens/profile/EditProfileScreen";
 import ChangePasswordScreen from "./src/screens/profile/ChangePasswordScreen";
 
 // Book Screens
@@ -30,9 +29,7 @@ import AddBookScreen from "./src/screens/books/AddBookScreen";
 import EditBookScreen from "./src/screens/books/EditBookScreen";
 import BookDetailScreen from "./src/screens/books/BookDetailScreen";
 
-// Revenue Screens
-import SellerRevenueScreen from "./src/screens/seller/SellerRevenueScreen";
-import BookRevenueListScreen from "./src/screens/seller/BookRevenueListScreen";
+import TopRatedScreen from './src/screens/seller/TopRatedScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -58,7 +55,6 @@ function ProfileStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="MyProfile" component={MyProfileScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
     </Stack.Navigator>
   );
@@ -80,8 +76,7 @@ function BookStack() {
 function RevenueStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="SellerRevenue" component={SellerRevenueScreen} />
-      <Stack.Screen name="BookRevenueList" component={BookRevenueListScreen} />
+      <Stack.Screen name="TopRatedScreen" component={TopRatedScreen} />
     </Stack.Navigator>
   );
 }
