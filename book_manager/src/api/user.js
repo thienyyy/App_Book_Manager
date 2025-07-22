@@ -1,13 +1,14 @@
-import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const API = axios.create({
-  baseURL: 'http://172.16.40.35:3000/api/users',
+  baseURL: "http://192.168.75.1:3000/api/users",
   timeout: 10000,
 });
 
 // ✅ Gắn token test tạm thời (có thể thay bằng getToken() từ AsyncStorage nếu cần động)
 API.interceptors.request.use(async (config) => {
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1MzEwNzIzMiwiZXhwIjoxNzUzMTA4NDMyfQ.EEjt08cxgBdH7XnZE-R2voDl22pbABcH6wdQwSz44Ko"; 
+  const token = await AsyncStorage.getItem("authToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -16,13 +17,11 @@ API.interceptors.request.use(async (config) => {
 
 // ✅ GET all users ()
 export const getAllUsers = ({ page = 1, limit = 10 } = {}) => {
-  return API.get(`/?page=${page}&limit=${limit}`).then(res => res.data);
+  return API.get(`/?page=${page}&limit=${limit}`).then((res) => res.data);
 };
 
-
 // ✅ GET profile người dùng hiện tại
-export const getProfile = () =>
-  API.get('/me').then(res => res.data);
+export const getProfile = () => API.get("/me").then((res) => res.data);
 
 /*// ✅ PUT update profile (có ảnh → multipart/form-data)
 export const updateProfile = (data) => {
@@ -37,10 +36,14 @@ export const updateProfile = (data) => {
   }).then(res => res.data);
 };*/
 export const updateProfile = (data) => {
-  return API.put('/me', data).then(res => res.data);
+  return API.put("/me/UP", data).then((res) => res.data);
 };
-
 
 // ✅ DELETE user theo ID (tuỳ quyền)
 export const deleteUserById = (id) =>
-  API.delete(`/${id}`).then(res => res.data);
+  API.delete(`/${id}`).then((res) => res.data);
+export const toggleBanUser = async (userId, is_banned) => {
+  const res = await API.put(`/update/status/${userId}`, { is_banned });
+
+  return res.data;
+};

@@ -1,38 +1,47 @@
-import axios from 'axios';
+// src/api/revenue.js
+import axios from "axios";
+import { getToken } from "../utils/tokenStorage";
 
-// Token test lấy từ Postman (gắn trực tiếp):
-const HARDCODED_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzRlYmNhM2Q4MTQ1ZWUzNzFhYWM5NCIsImlhdCI6MTc1MzEwNzIzMiwiZXhwIjoxNzUzMTA4NDMyfQ.EEjt08cxgBdH7XnZE-R2voDl22pbABcH6wdQwSz44Ko';
+const API = axios.create({
+  baseURL: "http://192.168.75.1:3000/api/",
+  timeout: 10000,
+});
 
-const API_BASE_URL = 'http://172.16.40.35:3000/api/seller';
+// Gắn token tự động vào request
+API.interceptors.request.use(async (config) => {
+  const token = await getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// 📊 Lấy tổng quan doanh thu seller
-export const getOverviewRevenue = async () => {
+// 1. Gọi API thống kê rating và favorite
+export const getRatingStats = async () => {
   try {
-    const res = await axios.get(`${API_BASE_URL}/revenue`, {
-      headers: {
-        Authorization: HARDCODED_TOKEN,
-      },
-    });
-    // res.data = { totalRevenue, totalBooksSold, ... }
-    return res.data;
+    const res = await API.get("/seller/revenue/rating-stats");
+    return res.data.ratingStats; // dữ liệu chính nằm trong res.data.ratingStats
   } catch (error) {
-    console.error('Lỗi lấy doanh thu tổng quan:', error.message);
+    console.error(
+      "[DEBUG] getRatingStats error:",
+      error.message,
+      error.response?.data
+    );
     throw error;
   }
 };
 
-// 📚 Lấy danh sách doanh thu theo từng sách
-export const getBookRevenueList = async () => {
+// 2. Gọi API phân tích hiệu suất sách
+export const getPerformanceAnalysis = async () => {
   try {
-    const res = await axios.get(`${API_BASE_URL}/revenue/books`, {
-      headers: {
-        Authorization: HARDCODED_TOKEN,
-      },
-    });
-    // res.data = { bookStats: [...] }
-    return res.data.bookStats;
+    const res = await API.get("/seller/revenue/performance-analysis");
+    return res.data.analysis; // dữ liệu chính nằm trong res.data.analysis
   } catch (error) {
-    console.error('Lỗi lấy doanh thu từng sách:', error.message);
+    console.error(
+      "[DEBUG] getPerformanceAnalysis error:",
+      error.message,
+      error.response?.data
+    );
     throw error;
   }
 };

@@ -10,14 +10,14 @@ import {
   Alert,
   Dimensions,
 } from "react-native";
-import api from "./../../../APi/url";
+import api from "./../../APi/url";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CardFlip from "react-native-card-flip";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = width * 0.7;
+const CARD_WIDTH = width * 0.6;
 const CARD_HEIGHT = CARD_WIDTH * 1.2;
 
 const GRADIENT_SET_1 = ["#f093fb", "#f5576c"];

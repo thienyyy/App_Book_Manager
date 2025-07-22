@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import CardFlip from "react-native-card-flip";
 import Icon from "react-native-vector-icons/Ionicons";
-import api from "./../../../APi/url";
+import api from "./../../APi/url";
 
 const { width } = Dimensions.get("window");
 const BOOK_WIDTH = width * 0.9;

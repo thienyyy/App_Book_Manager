@@ -7,11 +7,12 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import api from "../../../APi/url";
+import api from "../../APi/url";
 
 export default function FavoriteScreen() {
   const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // loading lần đầu
+  const [refreshing, setRefreshing] = useState(false); // loading khi kéo refresh
 
   const BASE_URL = "http://192.168.75.1:3000/";
 
@@ -20,6 +21,7 @@ export default function FavoriteScreen() {
   }, []);
 
   const fetchFavorites = async () => {
+    if (!refreshing) setLoading(true); // chỉ hiện loading toàn màn hình khi không phải refresh
     try {
       const res = await api.get("/books/favorites");
       setFavorites(res.data.books || []);
@@ -27,10 +29,16 @@ export default function FavoriteScreen() {
       console.error("Error fetching favorites:", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  if (loading) {
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchFavorites();
+  };
+
+  if (loading && !refreshing) {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#4CAF50" />
@@ -56,17 +64,11 @@ export default function FavoriteScreen() {
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.author}>Tác giả: {item.author}</Text>
                 <Text style={styles.category}>Thể loại: {item.category}</Text>
-                {/* Hiển thị rating */}
-                {/* <Text style={styles.rating}>
-                  Đánh giá:{" "}
-                  {item.averageRating !== undefined &&
-                  item.averageRating !== null
-                    ? item.averageRating.toFixed(1)
-                    : "Chưa có"}
-                </Text> */}
               </View>
             </View>
           )}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
         />
       )}
     </View>
@@ -90,5 +92,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
   author: { fontSize: 14, color: "#333" },
   category: { fontSize: 14, color: "#666", marginTop: 5 },
-  rating: { fontSize: 16, fontWeight: "bold", color: "#FF9800", marginTop: 8 },
 });
