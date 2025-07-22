@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   Alert,
   RefreshControl,
   Image,
-} from 'react-native';
-import { Card } from 'react-native-paper';
-import { getAllUsers } from '../../api/user';
+} from "react-native";
+import { Button, Card } from "react-native-paper";
+import { getAllUsers, toggleBanUser } from "../../api/user";
 
-const BASE_URL = 'http://172.16.40.25:3000'; // 🔁 Đổi theo IP backend thật
+const BASE_URL = "http://172.16.40.35:3000"; // 🔁 Đổi theo IP backend thật
 
 const UserManagementScreen = () => {
   const [users, setUsers] = useState([]);
@@ -29,12 +29,12 @@ const UserManagementScreen = () => {
       if (pageNumber === 1) {
         setUsers(res.users);
       } else {
-        setUsers(prev => [...prev, ...res.users]);
+        setUsers((prev) => [...prev, ...res.users]);
       }
       setTotalPages(res.totalPages);
       setPage(res.page);
     } catch (err) {
-      Alert.alert('Error', err.message || 'Failed to fetch users');
+      Alert.alert("Error", err.message || "Failed to fetch users");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -67,16 +67,35 @@ const UserManagementScreen = () => {
         )}
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.name}>{item.name || 'No Name'}</Text>
+          <Text style={styles.name}>{item.name || "No Name"}</Text>
           <Text style={styles.info}>📧 {item.email}</Text>
-          <Text style={styles.info}>⚧ Gender: {item.gender || 'N/A'}</Text>
+          <Text style={styles.info}>⚧ Gender: {item.gender || "N/A"}</Text>
           <Text style={styles.info}>
-            🎂 DOB: {item.dob ? new Date(item.dob).toLocaleDateString() : 'N/A'}
+            🎂 DOB: {item.dob ? new Date(item.dob).toLocaleDateString() : "N/A"}
           </Text>
           <Text style={styles.info}>🔐 Role: {item.role}</Text>
           <Text style={styles.info}>
-            🚫 Status: {item.is_banned ? 'Banned' : 'Active'}
+            🚫 Status: {item.is_banned ? "Active" : "Banned"}
           </Text>
+
+          <Button
+            mode="outlined"
+            onPress={async () => {
+              try {
+                await toggleBanUser(item._id, !item.is_banned);
+                loadUsers(1); // Load lại danh sách từ đầu sau khi đổi trạng thái
+              } catch (err) {
+                Alert.alert(
+                  "Error",
+                  "Không thể cập nhật trạng thái người dùng."
+                );
+              }
+            }}
+            style={{ marginTop: 8 }}
+            textColor={item.is_banned ? "green" : "red"}
+          >
+            {item.is_banned ? "Activate" : "Deactivate"}
+          </Button>
         </View>
       </Card.Content>
     </Card>
@@ -97,7 +116,9 @@ const UserManagementScreen = () => {
           renderItem={renderUser}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>
@@ -110,17 +131,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 12,
-    backgroundColor: '#f5f7fa',
+    backgroundColor: "#f5f7fa",
   },
   card: {
     marginBottom: 12,
     borderRadius: 12,
     elevation: 3,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   avatar: {
@@ -128,26 +149,26 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     marginRight: 12,
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
   },
   placeholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ddd',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ddd",
   },
   placeholderText: {
     fontSize: 28,
-    color: '#666',
+    color: "#666",
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 4,
-    color: '#333',
+    color: "#333",
   },
   info: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
     marginBottom: 2,
   },
 });
