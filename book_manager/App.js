@@ -16,6 +16,9 @@ import Icon from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Provider as PaperProvider } from "react-native-paper";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+// AsyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Screens
@@ -31,14 +34,13 @@ import AddBookScreen from "./src/screens/books/AddBookScreen";
 import EditBookScreen from "./src/screens/books/EditBookScreen";
 import BookDetailScreen from "./src/screens/Book/BookDetailList";
 import BookListScreen from "./src/screens/Book/ScreenBookiList";
-
 import TopRatedScreen from "./src/screens/seller/TopRatedScreen";
 import FavoriteScreen from "./src/screens/Book/FavoriteScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Custom Header Component
+// ✅ Custom Header
 function CustomHeader({ title, canGoBack }) {
   const navigation = useNavigation();
 
@@ -58,7 +60,7 @@ function CustomHeader({ title, canGoBack }) {
             <Icon name="arrow-back" size={26} color="#fff" />
           </TouchableOpacity>
         ) : (
-          <View style={{ width: 40 }} /> // placeholder to balance layout
+          <View style={{ width: 40 }} /> // placeholder
         )}
         <Text style={styles.headerTitle}>{title}</Text>
         <View style={{ width: 40 }} />
@@ -67,7 +69,7 @@ function CustomHeader({ title, canGoBack }) {
   );
 }
 
-// Auth stack
+// ✅ Auth Stack
 function AuthStack({ onLoginSuccess }) {
   return (
     <Stack.Navigator
@@ -90,7 +92,7 @@ function AuthStack({ onLoginSuccess }) {
   );
 }
 
-// Profile stack
+// ✅ Profile Stack
 function ProfileStack() {
   return (
     <Stack.Navigator
@@ -117,7 +119,7 @@ function ProfileStack() {
   );
 }
 
-// Book stack
+// ✅ Book Stack
 function BookStack() {
   return (
     <Stack.Navigator
@@ -154,7 +156,7 @@ function BookStack() {
   );
 }
 
-// Revenue stack
+// ✅ Revenue Stack
 function RevenueStack() {
   return (
     <Stack.Navigator
@@ -176,7 +178,7 @@ function RevenueStack() {
   );
 }
 
-// User Tabs (for regular users)
+// ✅ User Tabs (Người dùng thường)
 function UserTabs() {
   return (
     <Tab.Navigator
@@ -189,6 +191,7 @@ function UserTabs() {
           let iconName;
           if (route.name === "Home") iconName = "home";
           else if (route.name === "FavoriteScreen") iconName = "heart";
+          else if (route.name === "DislikedScreen") iconName = "thumb-down";
           return (
             <MaterialCommunityIcons name={iconName} size={size} color={color} />
           );
@@ -209,7 +212,7 @@ function UserTabs() {
   );
 }
 
-// Seller Tabs (for sellers)
+// ✅ Seller Tabs
 function SellerTabs() {
   return (
     <Tab.Navigator
@@ -238,7 +241,7 @@ function SellerTabs() {
   );
 }
 
-// Main Navigation with Role-Based Tabs
+// ✅ Main Tabs
 function MainTabs() {
   const { user, isLoading } = useContext(AuthContext);
 
@@ -264,32 +267,34 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <AuthProvider>
-      <PaperProvider>
-        <NavigationContainer>
-          <StatusBar style="auto" />
-          <Stack.Navigator screenOptions={{ headerShown: true }}>
-            {isLoggedIn ? (
-              <Stack.Screen name="MainTabs" component={MainTabs} />
-            ) : (
-              <Stack.Screen name="Auth">
-                {(props) => (
-                  <AuthStack
-                    {...props}
-                    onLoginSuccess={() => setIsLoggedIn(true)}
-                  />
-                )}
-              </Stack.Screen>
-            )}
-            <Stack.Screen
-              name="BookDetail"
-              component={BookDetailScreen}
-              options={{ title: "Chi tiết sách" }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <PaperProvider>
+          <NavigationContainer>
+            <StatusBar style="auto" />
+            <Stack.Navigator screenOptions={{ headerShown: true }}>
+              {isLoggedIn ? (
+                <Stack.Screen name="MainTabs" component={MainTabs} />
+              ) : (
+                <Stack.Screen name="Auth">
+                  {(props) => (
+                    <AuthStack
+                      {...props}
+                      onLoginSuccess={() => setIsLoggedIn(true)}
+                    />
+                  )}
+                </Stack.Screen>
+              )}
+              <Stack.Screen
+                name="BookDetail"
+                component={BookDetailScreen}
+                options={{ title: "Chi tiết sách" }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
 
