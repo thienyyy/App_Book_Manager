@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from "react-native";
-import { getRatingStats } from "../../api/book";
+import { getRatingStats } from "../../api/revenue";
 import { Ionicons } from "@expo/vector-icons";
 import { BarChart, PieChart } from "react-native-chart-kit";
 
@@ -104,7 +104,9 @@ const TopRatedScreen = () => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📘 Top Favorite Books (Pie Chart)</Text>
+        <Text style={styles.sectionTitle}>
+          📘 Top Favorite Books (Pie Chart)
+        </Text>
         <PieChart
           data={data.topFavoriteBooks.map((book, index) => ({
             name: book.title,

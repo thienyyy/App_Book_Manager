@@ -1,29 +1,39 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import axios from '../../../api/axiosInstance'; 
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from "../../api/axiosInstance"; // Adjust the import based on your axios setup
 
 const VerifyOTPScreen = () => {
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const navigation = useNavigation();
   const route = useRoute();
   const { email } = route.params;
 
   const handleVerifyOTP = async () => {
     if (!otp) {
-      Alert.alert('Lỗi', 'Vui lòng nhập OTP');
+      Alert.alert("Lỗi", "Vui lòng nhập OTP");
       return;
     }
 
     try {
-      const response = await axios.post('/auth/verify-email', { email, otp });
+      const response = await axios.post("/auth/verify-email", { email, otp });
       if (response.data.success) {
-        Alert.alert('Thành công', 'Xác minh email thành công');
-        navigation.navigate('Login');
+        Alert.alert("Thành công", "Xác minh email thành công");
+        navigation.navigate("Login");
       }
     } catch (error) {
-      console.log('[DEBUG] Verify OTP Error', error);
-      Alert.alert('Lỗi', error.response?.data?.message || 'Không thể xác minh OTP');
+      console.log("[DEBUG] Verify OTP Error", error);
+      Alert.alert(
+        "Lỗi",
+        error.response?.data?.message || "Không thể xác minh OTP"
+      );
     }
   };
 
@@ -55,28 +65,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 20,
   },
   label: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
   email: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
     marginBottom: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -84,15 +94,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     paddingVertical: 14,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
