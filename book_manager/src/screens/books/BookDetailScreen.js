@@ -14,6 +14,8 @@ import { getBookById } from "../../api/book";
 const BookDetailScreen = () => {
   const route = useRoute();
   const { id } = route.params;
+  console.log(id);
+
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +51,7 @@ const BookDetailScreen = () => {
       </View>
     );
   }
-  const API_BASE_URL = "http://172.16.40.25:3000/"; // hoặc IP máy backend thực tế
+  const API_BASE_URL = "http://172.16.43.89:3000/"; // hoặc IP máy backend thực tế
   const imageUrl = book.image
     ? `${API_BASE_URL}${book.image.replace(/\\/g, "/")}`
     : null;

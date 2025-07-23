@@ -1,16 +1,25 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Image, StyleSheet, Platform } from "react-native";
-import { loginAPI } from "../../../api/auth";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Image,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import { loginAPI } from "../../api/auth";
 import { useNavigation } from "@react-navigation/native";
-import { AuthContext } from '../../../context/AuthContext';
+import { AuthContext } from "../../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   logo: {
@@ -18,25 +27,25 @@ const styles = StyleSheet.create({
     height: 80,
     marginBottom: 18,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#222',
+    fontWeight: "bold",
+    color: "#222",
     marginBottom: 18,
     letterSpacing: 1,
   },
   formBox: {
-    width: '100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 22,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -44,35 +53,35 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
     borderRadius: 8,
     padding: 12,
     marginBottom: 14,
     fontSize: 16,
-    backgroundColor: '#f8fafc',
-    color: '#222',
+    backgroundColor: "#f8fafc",
+    color: "#222",
   },
   loginBtn: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     paddingVertical: 14,
     borderRadius: 8,
     marginTop: 4,
-    shadowColor: '#007bff',
+    shadowColor: "#007bff",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
   },
   loginText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 17,
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: 0.5,
   },
   registerText: {
-    color: '#444',
-    textAlign: 'center',
+    color: "#444",
+    textAlign: "center",
     fontSize: 15,
   },
 });
@@ -98,18 +107,21 @@ const LoginScreen = ({ onLoginSuccess }) => {
       const userObj = res.data.data.user || res.data.user;
       await AsyncStorage.setItem("authToken", token); // Lưu token vào AsyncStorage
       let profileLoaded = false;
-      if (typeof loadProfile === 'function') {
+      if (typeof loadProfile === "function") {
         try {
           await loadProfile(userObj);
           profileLoaded = true;
         } catch (err) {
-          console.log('[DEBUG] loadProfile thất bại, sẽ dùng user từ login:', err.message);
+          console.log(
+            "[DEBUG] loadProfile thất bại, sẽ dùng user từ login:",
+            err.message
+          );
         }
       }
-      if (!profileLoaded && typeof login === 'function') {
+      if (!profileLoaded && typeof login === "function") {
         await login(token, userObj);
       }
-      if (typeof onLoginSuccess === 'function') {
+      if (typeof onLoginSuccess === "function") {
         onLoginSuccess();
       }
     } catch (e) {
@@ -130,12 +142,12 @@ const LoginScreen = ({ onLoginSuccess }) => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f2f6fc' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1, backgroundColor: "#f2f6fc" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.container}>
         <Image
-          source={require('../../../assets/icon.png')}
+          source={require("../../../assets/icon.png")}
           style={styles.logo}
         />
         <Text style={styles.title}>Đăng nhập</Text>
@@ -157,13 +169,25 @@ const LoginScreen = ({ onLoginSuccess }) => {
             style={styles.input}
             placeholderTextColor="#888"
           />
-          <TouchableOpacity style={styles.loginBtn} onPress={handleLogin} activeOpacity={0.8} disabled={loading}>
-            <Text style={styles.loginText}>{loading ? 'Đang đăng nhập...' : 'Đăng nhập'}</Text>
+          <TouchableOpacity
+            style={styles.loginBtn}
+            onPress={handleLogin}
+            activeOpacity={0.8}
+            disabled={loading}
+          >
+            <Text style={styles.loginText}>
+              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Register")}
-            style={{ marginTop: 18 }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Register")}
+            style={{ marginTop: 18 }}
+          >
             <Text style={styles.registerText}>
-              Chưa có tài khoản? <Text style={{ color: '#007bff', fontWeight: 'bold' }}>Đăng ký</Text>
+              Chưa có tài khoản?{" "}
+              <Text style={{ color: "#007bff", fontWeight: "bold" }}>
+                Đăng ký
+              </Text>
             </Text>
           </TouchableOpacity>
         </View>

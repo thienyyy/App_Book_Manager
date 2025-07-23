@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,18 +10,18 @@ import {
   ActivityIndicator,
   Switch,
   TouchableOpacity,
-} from 'react-native';
-import { updateBook, getBookById } from '../../api/book';
+} from "react-native";
+import { updateBook, getBookById } from "../../api/book";
 
 const EditBookScreen = ({ route, navigation }) => {
   const { id } = route.params;
   const [form, setForm] = useState({
-    title: '',
-    author: '',
-    price: '',
-    description: '',
-    category: '',
-    stock: '',
+    title: "",
+    author: "",
+    price: "",
+    description: "",
+    category: "",
+    stock: "",
     isActive: true,
     favorites: [],
     pages: [],
@@ -36,19 +36,19 @@ const EditBookScreen = ({ route, navigation }) => {
       const book = res.data.book;
 
       setForm({
-        title: book.title || '',
-        author: book.author || '',
-        price: book.price?.toString() || '0',
-        description: book.description || '',
-        category: book.category || '',
-        stock: book.stock?.toString() || '0',
+        title: book.title || "",
+        author: book.author || "",
+        price: book.price?.toString() || "0",
+        description: book.description || "",
+        category: book.category || "",
+        stock: book.stock?.toString() || "0",
         isActive: book.isActive ?? true,
         favorites: book.favorites || [],
         pages: book.pages || [],
       });
     } catch (error) {
-      console.error('❌ Error fetching book:', error);
-      Alert.alert('Lỗi', 'Không thể tải dữ liệu sách.');
+      console.error("❌ Error fetching book:", error);
+      Alert.alert("Lỗi", "Không thể tải dữ liệu sách.");
     } finally {
       setInitialLoading(false);
     }
@@ -68,7 +68,10 @@ const EditBookScreen = ({ route, navigation }) => {
   const handlePageChange = (index, field, value) => {
     setForm((prevForm) => {
       const newPages = [...prevForm.pages];
-      newPages[index] = { ...newPages[index], [field]: field === 'pageNumber' ? Number(value) : value };
+      newPages[index] = {
+        ...newPages[index],
+        [field]: field === "pageNumber" ? Number(value) : value,
+      };
       return { ...prevForm, pages: newPages };
     });
   };
@@ -76,27 +79,52 @@ const EditBookScreen = ({ route, navigation }) => {
   const addPage = () => {
     setForm((prevForm) => ({
       ...prevForm,
-      pages: [...prevForm.pages, { pageNumber: prevForm.pages.length + 1, content: '' }],
+      pages: [
+        ...prevForm.pages,
+        { pageNumber: prevForm.pages.length + 1, content: "" },
+      ],
     }));
   };
 
+  const removePage = (indexToRemove) => {
+    setForm((prevForm) => {
+      const newPages = prevForm.pages.filter(
+        (_, index) => index !== indexToRemove
+      );
+      return { ...prevForm, pages: newPages };
+    });
+  };
+
   const handleSubmit = async () => {
-    const { title, author, price, description, category, stock, isActive, favorites, pages } = form;
+    const {
+      title,
+      author,
+      price,
+      description,
+      category,
+      stock,
+      isActive,
+      favorites,
+      pages,
+    } = form;
 
     if (!title || !author || !price || !description || !category || !stock) {
-      return Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin bắt buộc.');
+      return Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin bắt buộc.");
     }
 
     if (isNaN(price) || parseFloat(price) < 0) {
-      return Alert.alert('Lỗi', 'Giá sách phải là số không âm.');
+      return Alert.alert("Lỗi", "Giá sách phải là số không âm.");
     }
 
     if (isNaN(stock) || parseInt(stock) < 0) {
-      return Alert.alert('Lỗi', 'Số lượng phải là số nguyên không âm.');
+      return Alert.alert("Lỗi", "Số lượng phải là số nguyên không âm.");
     }
 
-    if (pages.some(page => !page.pageNumber || !page.content)) {
-      return Alert.alert('Lỗi', 'Tất cả các trang phải có số trang và nội dung.');
+    if (pages.some((page) => !page.pageNumber || !page.content)) {
+      return Alert.alert(
+        "Lỗi",
+        "Tất cả các trang phải có số trang và nội dung."
+      );
     }
 
     try {
@@ -110,7 +138,7 @@ const EditBookScreen = ({ route, navigation }) => {
         stock: parseInt(stock),
         isActive,
         favorites,
-        pages: pages.map(page => ({
+        pages: pages.map((page) => ({
           pageNumber: Number(page.pageNumber),
           content: page.content,
         })),
@@ -118,15 +146,15 @@ const EditBookScreen = ({ route, navigation }) => {
 
       const res = await updateBook(id, updatedBook);
       if (res.data?.success) {
-        Alert.alert('Thành công', 'Cập nhật sách thành công', [
-          { text: 'OK', onPress: () => navigation.goBack() },
+        Alert.alert("Thành công", "Cập nhật sách thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
         ]);
       } else {
-        Alert.alert('Lỗi', res.data?.message || 'Cập nhật thất bại.');
+        Alert.alert("Lỗi", res.data?.message || "Cập nhật thất bại.");
       }
     } catch (error) {
-      console.error('❌ Lỗi khi cập nhật:', error);
-      Alert.alert('Lỗi', 'Không thể cập nhật sách.');
+      console.error("❌ Lỗi khi cập nhật:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật sách.");
     } finally {
       setLoading(false);
     }
@@ -149,7 +177,7 @@ const EditBookScreen = ({ route, navigation }) => {
       <TextInput
         style={styles.input}
         value={form.title}
-        onChangeText={(text) => handleChange('title', text)}
+        onChangeText={(text) => handleChange("title", text)}
         autoCapitalize="sentences"
       />
 
@@ -157,7 +185,7 @@ const EditBookScreen = ({ route, navigation }) => {
       <TextInput
         style={styles.input}
         value={form.author}
-        onChangeText={(text) => handleChange('author', text)}
+        onChangeText={(text) => handleChange("author", text)}
         autoCapitalize="words"
       />
 
@@ -166,7 +194,7 @@ const EditBookScreen = ({ route, navigation }) => {
         style={styles.input}
         keyboardType="numeric"
         value={form.price}
-        onChangeText={(text) => handleChange('price', text)}
+        onChangeText={(text) => handleChange("price", text)}
         inputMode="numeric"
       />
 
@@ -176,7 +204,7 @@ const EditBookScreen = ({ route, navigation }) => {
         multiline
         numberOfLines={4}
         value={form.description}
-        onChangeText={(text) => handleChange('description', text)}
+        onChangeText={(text) => handleChange("description", text)}
         autoCapitalize="sentences"
       />
 
@@ -184,7 +212,7 @@ const EditBookScreen = ({ route, navigation }) => {
       <TextInput
         style={styles.input}
         value={form.category}
-        onChangeText={(text) => handleChange('category', text)}
+        onChangeText={(text) => handleChange("category", text)}
         autoCapitalize="words"
       />
 
@@ -193,7 +221,7 @@ const EditBookScreen = ({ route, navigation }) => {
         style={styles.input}
         keyboardType="numeric"
         value={form.stock}
-        onChangeText={(text) => handleChange('stock', text)}
+        onChangeText={(text) => handleChange("stock", text)}
         inputMode="numeric"
       />
 
@@ -201,9 +229,9 @@ const EditBookScreen = ({ route, navigation }) => {
         <Text style={styles.label}>Trạng thái hoạt động</Text>
         <Switch
           value={form.isActive}
-          onValueChange={(value) => handleChange('isActive', value)}
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={form.isActive ? '#f5dd4b' : '#f4f3f4'}
+          onValueChange={(value) => handleChange("isActive", value)}
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={form.isActive ? "#f5dd4b" : "#f4f3f4"}
         />
       </View>
 
@@ -211,13 +239,22 @@ const EditBookScreen = ({ route, navigation }) => {
       {form.pages.length > 0 ? (
         form.pages.map((page, index) => (
           <View key={index} style={styles.pageContainer}>
+            <TouchableOpacity
+              style={styles.deletePageButton}
+              onPress={() => removePage(index)}
+            >
+              <Text style={styles.deletePageButtonText}>🗑 Xóa trang</Text>
+            </TouchableOpacity>
+
             <Text style={styles.label}>Số trang</Text>
             <TextInput
               style={styles.input}
               placeholder="Số trang"
               keyboardType="numeric"
-              value={page.pageNumber?.toString() || ''}
-              onChangeText={(text) => handlePageChange(index, 'pageNumber', text)}
+              value={page.pageNumber?.toString() || ""}
+              onChangeText={(text) =>
+                handlePageChange(index, "pageNumber", text)
+              }
               inputMode="numeric"
             />
             <Text style={styles.label}>Nội dung trang</Text>
@@ -226,8 +263,8 @@ const EditBookScreen = ({ route, navigation }) => {
               placeholder="Nội dung trang"
               multiline
               numberOfLines={4}
-              value={page.content || ''}
-              onChangeText={(text) => handlePageChange(index, 'content', text)}
+              value={page.content || ""}
+              onChangeText={(text) => handlePageChange(index, "content", text)}
             />
           </View>
         ))
@@ -240,7 +277,7 @@ const EditBookScreen = ({ route, navigation }) => {
       </TouchableOpacity>
 
       <Button
-        title={loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+        title={loading ? "Đang lưu..." : "Lưu thay đổi"}
         onPress={handleSubmit}
         disabled={loading}
       />
@@ -251,58 +288,70 @@ const EditBookScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   label: {
     marginBottom: 5,
-    fontWeight: 'bold',
-    color: '#444',
+    fontWeight: "bold",
+    color: "#444",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
     marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   loading: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 15,
   },
   pageContainer: {
     marginBottom: 15,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: "#eee",
     borderRadius: 8,
   },
   noPagesText: {
-    color: '#666',
+    color: "#666",
     marginBottom: 15,
-    textAlign: 'center',
+    textAlign: "center",
   },
   addButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     padding: 10,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 15,
   },
   addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  deletePageButton: {
+    backgroundColor: "#e74c3c",
+    padding: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  deletePageButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 
