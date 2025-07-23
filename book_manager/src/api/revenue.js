@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getToken } from '../utils/tokenStorage';
 
 const API = axios.create({
-  baseURL: 'http://172.16.40.35:3000/api/',
+  baseURL: 'http://172.16.43.89:3000/api/',
   timeout: 10000,
 });
 

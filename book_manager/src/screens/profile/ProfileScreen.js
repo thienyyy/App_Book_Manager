@@ -16,7 +16,7 @@ import { getProfile } from '../../api/user';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../../context/AuthContext';
 
-const BASE_URL = 'http://172.16.40.35:3000'; // 👉 đổi theo IP backend thật
+const BASE_URL = 'http://172.16.43.89:3000'; // 👉 đổi theo IP backend thật
 
 const ProfileScreen = () => {
   const [ user, setUser ] = useState({});
@@ -96,14 +96,6 @@ const ProfileScreen = () => {
         </Text>
       </Text>
 
-      <Button
-        mode="contained"
-        icon="account-edit"
-        onPress={() => navigation.navigate('EditProfile')}
-        style={{ marginTop: 24, borderRadius: 8 }}
-      >
-        Edit Profile
-      </Button>
     </View>
   );
 };

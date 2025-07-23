@@ -19,6 +19,7 @@ const TopRatedScreen = () => {
     const fetchStats = async () => {
       try {
         const stats = await getRatingStats();
+        
         setData(stats);
       } catch (error) {
         console.error("Error fetching stats:", error);
