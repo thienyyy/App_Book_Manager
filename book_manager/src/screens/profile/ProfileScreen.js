@@ -6,13 +6,13 @@ import { getProfile } from "../../APi/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
-const BASE_URL = "http://192.168.75.1:3000";
+const BASE_URL = "exp://192.168.75.1:8081";
 
-const ProfileScreen = ({ rootNavigation }) => {
+const ProfileScreen = ({ onLogout }) => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
-  const { user, setUser } = useContext(AuthContext);
-  const navigation = useNavigation(); // Ensure this is called within the component
+  const { logout, setUser } = useContext(AuthContext);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -36,23 +36,34 @@ const ProfileScreen = ({ rootNavigation }) => {
     loadProfile();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("authToken");
-      console.log("Logout initiated - Token removed");
-      if (rootNavigation) {
-        rootNavigation.reset({
-          index: 0,
-          routes: [{ name: "Login" }],
-        });
-        Alert.alert("Thông báo", "Đăng xuất thành công");
-      } else {
-        console.log("rootNavigation is undefined - Check prop passing");
-      }
-    } catch (error) {
-      console.log("Error during logout:", error);
-      Alert.alert("Lỗi", "Đăng xuất thất bại. Vui lòng thử lại.");
-    }
+  const handleLogout = () => {
+    Alert.alert(
+      "Xác nhận đăng xuất",
+      "Bạn có chắc chắn muốn đăng xuất?",
+      [
+        {
+          text: "Không",
+          style: "cancel",
+        },
+        {
+          text: "Có",
+          onPress: async () => {
+            try {
+              await logout();
+              if (onLogout) onLogout();
+            } catch (error) {
+              console.log("Lỗi khi logout:", error);
+              Alert.alert("Lỗi", "Đăng xuất thất bại. Vui lòng thử lại.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleChangePassword = () => {
+    navigation.navigate("ChangePassword");
   };
 
   if (loading) {
@@ -60,6 +71,7 @@ const ProfileScreen = ({ rootNavigation }) => {
       <ActivityIndicator animating size="large" style={{ marginTop: 40 }} />
     );
   }
+
   return (
     <View style={styles.container}>
       <View style={styles.avatarWrapper}>
@@ -85,18 +97,37 @@ const ProfileScreen = ({ rootNavigation }) => {
 
       <Divider style={{ marginVertical: 16 }} />
 
-      {/* <Button
+      <Button
         mode="contained"
         style={{ marginBottom: 10 }}
-        onPress={() => navigation("ChangePassword")}
+        onPress={handleChangePassword}
       >
         Đổi mật khẩu
-      </Button> */}
-      {/* <Button mode="contained" color="red" onPress={handleLogout}>
+      </Button>
+      <Button mode="contained" buttonColor="red" onPress={handleLogout}>
         Đăng xuất
-      </Button> */}
+      </Button>
     </View>
   );
+};
+const validate = () => {
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    Alert.alert("Lỗi", "Vui lòng nhập đầy đủ các trường");
+    return false;
+  }
+  if (newPassword.length < 8) {
+    Alert.alert("Lỗi", "Mật khẩu mới phải có ít nhất 8 ký tự");
+    return false;
+  }
+  if (newPassword !== confirmPassword) {
+    Alert.alert("Lỗi", "Xác nhận mật khẩu không khớp");
+    return false;
+  }
+  if (newPassword === oldPassword) {
+    Alert.alert("Lỗi", "Mật khẩu mới không được trùng mật khẩu hiện tại");
+    return false;
+  }
+  return true;
 };
 
 export default ProfileScreen;

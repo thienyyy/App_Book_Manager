@@ -1,11 +1,12 @@
 import "react-native-gesture-handler";
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StatusBar,
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -18,7 +19,6 @@ import { Provider as PaperProvider } from "react-native-paper";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// AsyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Screens
@@ -60,7 +60,7 @@ function CustomHeader({ title, canGoBack }) {
             <Icon name="arrow-back" size={26} color="#fff" />
           </TouchableOpacity>
         ) : (
-          <View style={{ width: 40 }} /> // placeholder
+          <View style={{ width: 40 }} />
         )}
         <Text style={styles.headerTitle}>{title}</Text>
         <View style={{ width: 40 }} />
@@ -87,7 +87,6 @@ function AuthStack({ onLoginSuccess }) {
       </Stack.Screen>
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="VerifyOTP" component={VerifyOTPScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
     </Stack.Navigator>
   );
 }
@@ -178,8 +177,8 @@ function RevenueStack() {
   );
 }
 
-// ✅ User Tabs (Người dùng thường)
-function UserTabs() {
+// ✅ Tabs cho user thường
+function UserTabs({ onLogout }) {
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -191,29 +190,30 @@ function UserTabs() {
           let iconName;
           if (route.name === "Home") iconName = "home";
           else if (route.name === "FavoriteScreen") iconName = "heart";
-          else if (route.name === "DislikedScreen") iconName = "thumb-down";
           return (
             <MaterialCommunityIcons name={iconName} size={size} color={color} />
           );
         },
       })}
     >
-      <Tab.Screen
-        name="Home"
-        component={BookListScreen}
-        options={{ title: "Trang chủ" }}
-      />
+      <Tab.Screen name="Home">
+        {(props) => <BookListScreen {...props} onLogout={onLogout} />}
+      </Tab.Screen>
       <Tab.Screen
         name="FavoriteScreen"
         component={FavoriteScreen}
         options={{ title: "Yêu thích" }}
       />
+      <Tab.Screen
+        name="Profile"
+        children={(props) => <MyProfileScreen {...props} onLogout={onLogout} />}
+      />
     </Tab.Navigator>
   );
 }
 
-// ✅ Seller Tabs
-function SellerTabs() {
+// ✅ Tabs cho Seller
+function SellerTabs({ onLogout }) {
   return (
     <Tab.Navigator
       initialRouteName="Users"
@@ -234,20 +234,24 @@ function SellerTabs() {
       })}
     >
       <Tab.Screen name="Users" component={UserManagerScreen} />
-      <Tab.Screen name="Profile" component={ProfileStack} />
+      <Tab.Screen
+        name="Profile"
+        children={(props) => <MyProfileScreen {...props} onLogout={onLogout} />}
+      />
       <Tab.Screen name="Books" component={BookStack} />
       <Tab.Screen name="Revenue" component={RevenueStack} />
     </Tab.Navigator>
   );
 }
 
-// ✅ Main Tabs
-function MainTabs() {
+// ✅ MainTabs hiển thị theo role
+function MainTabs({ onLogout }) {
   const { user, isLoading } = useContext(AuthContext);
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#f5576c" />
         <Text>Đang tải thông tin người dùng...</Text>
       </View>
     );
@@ -259,12 +263,35 @@ function MainTabs() {
       </View>
     );
   }
-
-  return user.role === "seller" ? <SellerTabs /> : <UserTabs />;
+  return user.role === "seller" ? (
+    <SellerTabs onLogout={onLogout} />
+  ) : (
+    <UserTabs onLogout={onLogout} />
+  );
 }
 
+// ✅ App Component
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const token = await AsyncStorage.getItem("token");
+      setIsLoggedIn(!!token);
+      setCheckingAuth(false);
+    };
+    checkLogin();
+  }, []);
+
+  if (checkingAuth) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text>Đang kiểm tra đăng nhập...</Text>
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -274,7 +301,14 @@ export default function App() {
             <StatusBar style="auto" />
             <Stack.Navigator screenOptions={{ headerShown: true }}>
               {isLoggedIn ? (
-                <Stack.Screen name="MainTabs" component={MainTabs} />
+                <Stack.Screen name="MainTabs">
+                  {(props) => (
+                    <MainTabs
+                      {...props}
+                      onLogout={() => setIsLoggedIn(false)}
+                    />
+                  )}
+                </Stack.Screen>
               ) : (
                 <Stack.Screen name="Auth">
                   {(props) => (
@@ -289,6 +323,11 @@ export default function App() {
                 name="BookDetail"
                 component={BookDetailScreen}
                 options={{ title: "Chi tiết sách" }}
+              />
+              <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordScreen}
+                options={{ title: "Đổi mật khẩu" }}
               />
             </Stack.Navigator>
           </NavigationContainer>
