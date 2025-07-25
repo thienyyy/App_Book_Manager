@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.setItem("userId", userObj._id);
         console.log("[DEBUG] Đã lưu userId sau login:", userObj._id);
       }
+
     } catch (e) {
       console.log("[DEBUG] Login thất bại:", e.message);
       if (fallbackUser) {
@@ -57,9 +58,7 @@ export const AuthProvider = ({ children }) => {
       console.log("[DEBUG] loadProfile thành công:", userObj);
 
       if (!userObj?.role) {
-        console.warn(
-          "[⚠️ WARNING] Không có role trong userObj sau loadProfile!"
-        );
+        console.warn("[⚠️ WARNING] Không có role trong userObj sau loadProfile!");
       }
 
       setUser(userObj);
@@ -68,6 +67,8 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.setItem("userId", userObj._id);
         console.log("[DEBUG] Đã lưu userId sau loadProfile:", userObj._id);
       }
+
+
     } catch (e) {
       console.log("[DEBUG] loadProfile thất bại:", e.message);
       if (fallbackUser) {

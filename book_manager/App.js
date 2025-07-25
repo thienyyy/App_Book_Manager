@@ -26,6 +26,8 @@ import LoginScreen from "./src/screens/auth/LoginScreen";
 import RegisterScreen from "./src/screens/auth/RegisterScreen";
 import VerifyOTPScreen from "./src/screens/auth/VerifyOTPScreen";
 import HomeScreen from "./src/screens/auth/HomeScreen";
+import ForgotPasswordScreen from "./src/screens/auth/ForgotPasswordScreen";
+
 import UserManagerScreen from "./src/screens/seller/UserManagementScreen";
 import MyProfileScreen from "./src/screens/profile/ProfileScreen";
 import ChangePasswordScreen from "./src/screens/profile/ChangePasswordScreen";
@@ -89,6 +91,8 @@ function AuthStack({ onLoginSuccess }) {
       </Stack.Screen>
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="VerifyOTP" component={VerifyOTPScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+
     </Stack.Navigator>
   );
 }
@@ -192,6 +196,7 @@ function UserTabs({ onLogout }) {
           let iconName;
           if (route.name === "Home") iconName = "home";
           else if (route.name === "FavoriteScreen") iconName = "heart";
+          else if (route.name === "Profile") iconName = "account";
           return (
             <MaterialCommunityIcons name={iconName} size={size} color={color} />
           );
@@ -218,17 +223,16 @@ function UserTabs({ onLogout }) {
 function SellerTabs({ onLogout }) {
   return (
     <Tab.Navigator
-      initialRouteName="Users"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: "#007bff",
         tabBarInactiveTintColor: "gray",
         tabBarIcon: ({ color, size }) => {
           let iconName;
-          if (route.name === "Users") iconName = "account-group";
+          if (route.name === "Users") iconName = "account-multiple";
           else if (route.name === "Profile") iconName = "account";
-          else if (route.name === "Books") iconName = "book-open-page-variant";
-          else if (route.name === "Revenue") iconName = "currency-usd";
+          else if (route.name === "Books") iconName = "book";
+          else if (route.name === "Revenue") iconName = "chart-bar";
           return (
             <MaterialCommunityIcons name={iconName} size={size} color={color} />
           );
@@ -258,6 +262,7 @@ function MainTabs({ onLogout }) {
       </View>
     );
   }
+
   if (!user || !user.role) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

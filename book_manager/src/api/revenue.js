@@ -3,8 +3,9 @@ import axios from "axios";
 import { getToken } from "../utils/tokenStorage";
 
 const API = axios.create({
-  baseURL: "http://172.16.43.89:3000/api/",
-  timeout: 10000,
+
+  baseURL: "http://192.168.2.3:3000/api/",
+
 });
 
 // Gắn token tự động vào request

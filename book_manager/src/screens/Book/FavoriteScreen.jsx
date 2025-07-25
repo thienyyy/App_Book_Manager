@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -19,7 +19,11 @@ export default function FavoriteScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const BASE_URL = "http://172.16.43.89:3000/";
+const BASE_URL = "http://192.168.2.3:3000";
+
+  useEffect(() => {
+    fetchFavorites();
+  }, []);
 
   // ✅ Lấy danh sách yêu thích
   const fetchFavorites = async () => {

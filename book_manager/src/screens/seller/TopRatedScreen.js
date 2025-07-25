@@ -10,8 +10,9 @@ import {
   Dimensions,
 } from "react-native";
 import { getRatingStats } from "../../api/revenue";
+import { Ionicons } from "@expo/vector-icons";
+import { BarChart, PieChart } from "react-native-chart-kit";
 import { useFocusEffect } from "@react-navigation/native";
-import { BarChart } from "react-native-chart-kit";
 
 const RevenueScreen = () => {
   const [revenueData, setRevenueData] = useState(null);

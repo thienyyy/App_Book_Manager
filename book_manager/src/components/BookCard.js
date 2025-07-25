@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { StyleSheet } from "react-native";
 import { Button } from "react-native-paper";
 
-const API_BASE_URL = "http://172.16.43.89:3000/"; // hoặc IP máy backend thực tế
+const API_BASE_URL = "http://192.168.2.3:3000/"; // hoặc IP máy backend thực tế
 
 const BookCard = ({ book, onEdit, onDelete, onPress }) => {
   const imageUrl = book.image

@@ -2,7 +2,9 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const axiosInstance = axios.create({
-  baseURL: "http://172.16.43.89:3000/api", // đổi IP nếu cần
+
+  baseURL: "http://192.168.2.3:3000/api", // đổi IP nếu cần
+
 });
 
 // Thêm token vào header trước mỗi request

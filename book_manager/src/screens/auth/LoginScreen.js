@@ -27,11 +27,6 @@ const styles = StyleSheet.create({
     height: 80,
     marginBottom: 18,
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    backgroundColor: "#fff",
   },
   title: {
     fontSize: 28,
@@ -45,11 +40,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 22,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
   },
   input: {
     borderWidth: 1,
@@ -66,24 +56,31 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 8,
     marginTop: 4,
-    shadowColor: "#007bff",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
   },
   loginText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 17,
     textAlign: "center",
-    letterSpacing: 0.5,
   },
-  registerText: {
+  linkText: {
+    color: "#007bff",
+    fontWeight: "bold",
+  },
+  smallText: {
+    fontSize: 14,
     color: "#444",
     textAlign: "center",
-    fontSize: 15,
+    marginTop: 12,
   },
+  logo: {
+  width: 250,           
+  height: 250,           
+  borderRadius: 16,      
+  marginBottom: 20,
+  resizeMode: 'cover',  
+  alignSelf: 'center',  
+},
 });
 
 const LoginScreen = ({ onLoginSuccess }) => {
@@ -91,7 +88,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const { loadProfile, user, login } = useContext(AuthContext);
+  const { loadProfile, login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -102,21 +99,15 @@ const LoginScreen = ({ onLoginSuccess }) => {
     setLoading(true);
     try {
       const res = await loginAPI({ email, password });
-      console.log("[DEBUG] Đăng nhập thành công:", res.data);
       const token = res.data.data.token;
       const userObj = res.data.data.user || res.data.user;
-      await AsyncStorage.setItem("authToken", token); // Lưu token vào AsyncStorage
+      await AsyncStorage.setItem("authToken", token);
       let profileLoaded = false;
       if (typeof loadProfile === "function") {
         try {
           await loadProfile(userObj);
           profileLoaded = true;
-        } catch (err) {
-          console.log(
-            "[DEBUG] loadProfile thất bại, sẽ dùng user từ login:",
-            err.message
-          );
-        }
+        } catch (_) {}
       }
       if (!profileLoaded && typeof login === "function") {
         await login(token, userObj);
@@ -125,16 +116,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
         onLoginSuccess();
       }
     } catch (e) {
-      if (e.response) {
-        Alert.alert(
-          "Đăng nhập thất bại",
-          e.response.data.message || "Sai tài khoản hoặc mật khẩu"
-        );
-      } else if (e.request) {
-        Alert.alert("Lỗi mạng", "Không thể kết nối đến server");
-      } else {
-        Alert.alert("Lỗi", e.message);
-      }
+      Alert.alert("Lỗi", e.response?.data?.message || "Sai tài khoản hoặc mật khẩu");
     } finally {
       setLoading(false);
     }
@@ -147,7 +129,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
     >
       <View style={styles.container}>
         <Image
-          source={require("../../../assets/icon.png")}
+          source={require("../../../assets/bia-sach.png")}
           style={styles.logo}
         />
         <Text style={styles.title}>Đăng nhập</Text>
@@ -169,25 +151,34 @@ const LoginScreen = ({ onLoginSuccess }) => {
             style={styles.input}
             placeholderTextColor="#888"
           />
+
           <TouchableOpacity
             style={styles.loginBtn}
             onPress={handleLogin}
-            activeOpacity={0.8}
             disabled={loading}
           >
             <Text style={styles.loginText}>
               {loading ? "Đang đăng nhập..." : "Đăng nhập"}
             </Text>
           </TouchableOpacity>
+
+          {/* Link đăng ký */}
           <TouchableOpacity
             onPress={() => navigation.navigate("Register")}
             style={{ marginTop: 18 }}
           >
-            <Text style={styles.registerText}>
-              Chưa có tài khoản?{" "}
-              <Text style={{ color: "#007bff", fontWeight: "bold" }}>
-                Đăng ký
-              </Text>
+            <Text style={styles.smallText}>
+              Chưa có tài khoản? <Text style={styles.linkText}>Đăng ký</Text>
+            </Text>
+          </TouchableOpacity>
+
+          {/* Link forgot password */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ForgotPassword")}
+            style={{ marginTop: 12 }}
+          >
+            <Text style={styles.smallText}>
+              <Text style={styles.linkText}>Quên mật khẩu?</Text>
             </Text>
           </TouchableOpacity>
         </View>

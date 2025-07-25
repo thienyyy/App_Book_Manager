@@ -2,11 +2,8 @@ import axios from "axios";
 import { getToken } from "../../src/utils/tokenStorage";
 
 // Cấu hình API Base URL
-const API_BASE_URL = "http://172.16.43.89:3000/api"; // Thay bằng URL thật (Backend)
 
-// Hàm lấy token từ AsyncStorage (nếu bạn dùng đăng nhập)
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-
+const API_BASE_URL = "http://192.168.2.3:3000/api"; // Thay bằng URL thật (Backend)
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,

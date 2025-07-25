@@ -44,10 +44,7 @@ export default function ChangePasswordScreen({ navigation }) {
       navigation.goBack();
     } catch (err) {
       console.error("Lỗi đổi mật khẩu:", err.response || err.message);
-      Alert.alert(
-        "Lỗi",
-        err.response?.data?.message || "Đổi mật khẩu thất bại"
-      );
+      Alert.alert("Lỗi", err.response?.data?.message || "Đổi mật khẩu thất bại");
     } finally {
       setLoading(false);
     }

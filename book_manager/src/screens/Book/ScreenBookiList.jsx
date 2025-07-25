@@ -188,6 +188,8 @@ export default function BookListScreen({ navigation }) {
   const fetchBooks = async () => {
     try {
       const res = await api.get("/books");
+      console.log(res.data);
+      
       setBooks(res.data.books);
       setLoading(false);
     } catch (err) {

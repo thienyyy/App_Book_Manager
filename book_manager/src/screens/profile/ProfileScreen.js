@@ -6,7 +6,7 @@ import { getProfile } from "../../api/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
-const BASE_URL = "exp://172.16.43.89:8081";
+const BASE_URL = "http://192.168.2.3:3000";
 
 const ProfileScreen = ({ onLogout }) => {
   const [userData, setUserData] = useState({});
@@ -36,40 +36,39 @@ const ProfileScreen = ({ onLogout }) => {
     loadProfile();
   }, []);
 
-  const handleLogout = () => {
-    Alert.alert(
-      "Xác nhận đăng xuất",
-      "Bạn có chắc chắn muốn đăng xuất?",
-      [
-        {
-          text: "Không",
-          style: "cancel",
-        },
-        {
-          text: "Có",
-          onPress: async () => {
-            try {
-              await logout();
-              if (onLogout) onLogout();
-            } catch (error) {
-              console.log("Lỗi khi logout:", error);
-              Alert.alert("Lỗi", "Đăng xuất thất bại. Vui lòng thử lại.");
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+ const handleLogout = () => {
+  Alert.alert(
+    "Xác nhận đăng xuất",
+    "Bạn có chắc chắn muốn đăng xuất?",
+    [
+      {
+        text: "Không",
+        style: "cancel"
+      },
+      {
+        text: "Có",
+        onPress: async () => {
+          try {
+            await logout();
+            if (onLogout) onLogout();
+          } catch (error) {
+            console.log("Lỗi khi logout:", error);
+            Alert.alert("Lỗi", "Đăng xuất thất bại. Vui lòng thử lại.");
+          }
+        }
+      }
+    ],
+    { cancelable: true }
+  );
+};
+
 
   const handleChangePassword = () => {
     navigation.navigate("ChangePassword");
   };
 
-    if (loading) {
-    return (
-      <ActivityIndicator animating size="large" style={{ marginTop: 40 }} />
-    );
+  if (loading) {
+    return <ActivityIndicator animating size="large" style={{ marginTop: 40 }} />;
   }
 
   return (
@@ -99,16 +98,36 @@ const ProfileScreen = ({ onLogout }) => {
 
       <Button
         mode="contained"
-        style={styles.btnPrimary}
+        style={{ marginBottom: 10 }}
         onPress={handleChangePassword}
       >
         Đổi mật khẩu
       </Button>
-      <Button mode="contained" style={styles.btnLogout} onPress={handleLogout}>
+      <Button mode="contained" buttonColor="red" onPress={handleLogout}>
         Đăng xuất
       </Button>
     </View>
   );
+
+};
+const validate = () => {
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    Alert.alert("Lỗi", "Vui lòng nhập đầy đủ các trường");
+    return false;
+  }
+  if (newPassword.length < 8) {
+    Alert.alert("Lỗi", "Mật khẩu mới phải có ít nhất 8 ký tự");
+    return false;
+  }
+  if (newPassword !== confirmPassword) {
+    Alert.alert("Lỗi", "Xác nhận mật khẩu không khớp");
+    return false;
+  }
+  if (newPassword === oldPassword) {
+    Alert.alert("Lỗi", "Mật khẩu mới không được trùng mật khẩu hiện tại");
+    return false;
+  }
+  return true;
 };
 
 // 👉 Style đơn giản, dịu mắt

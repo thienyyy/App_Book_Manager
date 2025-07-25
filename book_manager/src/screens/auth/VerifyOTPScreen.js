@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import axios from "../../api/axiosInstance";
+import axios from "../../api/axiosInstance"; // Adjust the import based on your axios setup
 
 const VerifyOTPScreen = () => {
   const [otp, setOtp] = useState("");
