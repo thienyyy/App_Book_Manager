@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+// src/screens/EditBookScreen.js
+
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,123 +12,170 @@ import {
   ActivityIndicator,
   Switch,
   TouchableOpacity,
-} from 'react-native';
-import { updateBook, getBookById } from '../../api/book';
+  Image,
+  Platform,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import axios from "../../api/axiosInstance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getBookById, updateBook } from "../../api/book";
+import api from "../../api/url";
 
-const EditBookScreen = ({ route, navigation }) => {
+export default function EditBookScreen({ route, navigation }) {
   const { id } = route.params;
   const [form, setForm] = useState({
-    title: '',
-    author: '',
-    price: '',
-    description: '',
-    category: '',
-    stock: '',
+    title: "",
+    author: "",
+    price: "",
+    description: "",
+    category: "",
+    stock: "",
     isActive: true,
     favorites: [],
     pages: [],
+    image: "",
   });
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Thiếu quyền", "Cần cấp quyền truy cập thư viện ảnh.");
+      }
+    })();
+    if (id) fetchBook();
+  }, [id]);
 
   const fetchBook = async () => {
     try {
       setInitialLoading(true);
       const res = await getBookById(id);
       const book = res.data.book;
-
       setForm({
-        title: book.title || '',
-        author: book.author || '',
-        price: book.price?.toString() || '0',
-        description: book.description || '',
-        category: book.category || '',
-        stock: book.stock?.toString() || '0',
+        title: book.title || "",
+        author: book.author || "",
+        price: book.price?.toString() || "0",
+        description: book.description || "",
+        category: book.category || "",
+        stock: book.stock?.toString() || "0",
         isActive: book.isActive ?? true,
         favorites: book.favorites || [],
         pages: book.pages || [],
+        image: book.image || book.coverImage || "",
       });
     } catch (error) {
-      console.error('❌ Error fetching book:', error);
-      Alert.alert('Lỗi', 'Không thể tải dữ liệu sách.');
+      console.error("❌ Error fetching book:", error);
+      Alert.alert("Lỗi", "Không thể tải dữ liệu sách.");
     } finally {
       setInitialLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (id) fetchBook();
-  }, [id]);
-
-  const handleChange = (name, value) => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: value,
-    }));
-  };
+  const handleChange = (name, value) =>
+    setForm((prev) => ({ ...prev, [name]: value }));
 
   const handlePageChange = (index, field, value) => {
-    setForm((prevForm) => {
-      const newPages = [...prevForm.pages];
-      newPages[index] = { ...newPages[index], [field]: field === 'pageNumber' ? Number(value) : value };
-      return { ...prevForm, pages: newPages };
+    setForm((prev) => {
+      const pages = [...prev.pages];
+      pages[index] = {
+        ...pages[index],
+        [field]: field === "pageNumber" ? Number(value) : value,
+      };
+      return { ...prev, pages };
     });
   };
 
-  const addPage = () => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      pages: [...prevForm.pages, { pageNumber: prevForm.pages.length + 1, content: '' }],
+  const addPage = () =>
+    setForm((prev) => ({
+      ...prev,
+      pages: [
+        ...prev.pages,
+        { pageNumber: prev.pages.length + 1, content: "" },
+      ],
     }));
+
+  const removePage = (index) =>
+    setForm((prev) => ({
+      ...prev,
+      pages: prev.pages.filter((_, i) => i !== index),
+    }));
+
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets.length > 0) {
+        setForm((prev) => ({ ...prev, image: result.assets[0].uri }));
+      }
+    } catch (error) {
+      console.error("❌ Error picking image:", error);
+      Alert.alert("Lỗi", "Không thể chọn ảnh.");
+    }
   };
 
   const handleSubmit = async () => {
-    const { title, author, price, description, category, stock, isActive, favorites, pages } = form;
-
+    const {
+      title,
+      author,
+      price,
+      description,
+      category,
+      stock,
+      isActive,
+      favorites,
+      pages,
+      image,
+    } = form;
     if (!title || !author || !price || !description || !category || !stock) {
-      return Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin bắt buộc.');
+      return Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin bắt buộc.");
     }
-
     if (isNaN(price) || parseFloat(price) < 0) {
-      return Alert.alert('Lỗi', 'Giá sách phải là số không âm.');
+      return Alert.alert("Lỗi", "Giá sách phải là số không âm.");
     }
-
     if (isNaN(stock) || parseInt(stock) < 0) {
-      return Alert.alert('Lỗi', 'Số lượng phải là số nguyên không âm.');
+      return Alert.alert("Lỗi", "Số lượng phải là số nguyên không âm.");
     }
 
-    if (pages.some(page => !page.pageNumber || !page.content)) {
-      return Alert.alert('Lỗi', 'Tất cả các trang phải có số trang và nội dung.');
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("author", author);
+    formData.append("price", parseFloat(price));
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("stock", parseInt(stock));
+    formData.append("isActive", isActive.toString());
+    formData.append("favorites", JSON.stringify(favorites));
+    formData.append("pages", JSON.stringify(pages));
+
+    if (image) {
+      const uri =
+        Platform.OS === "android" ? image : image.replace("file://", "");
+      const filename = uri.split("/").pop();
+      const ext = filename.split(".").pop();
+      formData.append("image", { uri, name: filename, type: `image/${ext}` });
     }
 
     try {
       setLoading(true);
-      const updatedBook = {
-        title,
-        author,
-        price: parseFloat(price),
-        description,
-        category,
-        stock: parseInt(stock),
-        isActive,
-        favorites,
-        pages: pages.map(page => ({
-          pageNumber: Number(page.pageNumber),
-          content: page.content,
-        })),
-      };
-
-      const res = await updateBook(id, updatedBook);
-      if (res.data?.success) {
-        Alert.alert('Thành công', 'Cập nhật sách thành công', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
-      } else {
-        Alert.alert('Lỗi', res.data?.message || 'Cập nhật thất bại.');
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) {
+        return Alert.alert("Lỗi xác thực", "Vui lòng đăng nhập lại.");
       }
+      const res = await updateBook(id, formData);
+
+      Alert.alert("Thành công", "Cập nhật sách thành công", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
     } catch (error) {
-      console.error('❌ Lỗi khi cập nhật:', error);
-      Alert.alert('Lỗi', 'Không thể cập nhật sách.');
+      console.error("❌ Lỗi khi cập nhật:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật sách.");
     } finally {
       setLoading(false);
     }
@@ -139,17 +188,24 @@ const EditBookScreen = ({ route, navigation }) => {
       </View>
     );
   }
-
   return (
     <ScrollView
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
+      <Text style={styles.label}>Ảnh bìa</Text>
+      {form.imageUri ? (
+        <Image source={{ uri: form.imageUri }} style={styles.coverImage} />
+      ) : null}
+      <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+        <Text style={styles.imageButtonText}>Chọn ảnh bìa</Text>
+      </TouchableOpacity>
+
       <Text style={styles.label}>Tên sách</Text>
       <TextInput
         style={styles.input}
         value={form.title}
-        onChangeText={(text) => handleChange('title', text)}
+        onChangeText={(t) => handleChange("title", t)}
         autoCapitalize="sentences"
       />
 
@@ -157,7 +213,7 @@ const EditBookScreen = ({ route, navigation }) => {
       <TextInput
         style={styles.input}
         value={form.author}
-        onChangeText={(text) => handleChange('author', text)}
+        onChangeText={(t) => handleChange("author", t)}
         autoCapitalize="words"
       />
 
@@ -166,8 +222,7 @@ const EditBookScreen = ({ route, navigation }) => {
         style={styles.input}
         keyboardType="numeric"
         value={form.price}
-        onChangeText={(text) => handleChange('price', text)}
-        inputMode="numeric"
+        onChangeText={(t) => handleChange("price", t)}
       />
 
       <Text style={styles.label}>Mô tả</Text>
@@ -176,16 +231,14 @@ const EditBookScreen = ({ route, navigation }) => {
         multiline
         numberOfLines={4}
         value={form.description}
-        onChangeText={(text) => handleChange('description', text)}
-        autoCapitalize="sentences"
+        onChangeText={(t) => handleChange("description", t)}
       />
 
       <Text style={styles.label}>Thể loại</Text>
       <TextInput
         style={styles.input}
         value={form.category}
-        onChangeText={(text) => handleChange('category', text)}
-        autoCapitalize="words"
+        onChangeText={(t) => handleChange("category", t)}
       />
 
       <Text style={styles.label}>Số lượng</Text>
@@ -193,41 +246,41 @@ const EditBookScreen = ({ route, navigation }) => {
         style={styles.input}
         keyboardType="numeric"
         value={form.stock}
-        onChangeText={(text) => handleChange('stock', text)}
-        inputMode="numeric"
+        onChangeText={(t) => handleChange("stock", t)}
       />
 
       <View style={styles.switchContainer}>
         <Text style={styles.label}>Trạng thái hoạt động</Text>
         <Switch
           value={form.isActive}
-          onValueChange={(value) => handleChange('isActive', value)}
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={form.isActive ? '#f5dd4b' : '#f4f3f4'}
+          onValueChange={(v) => handleChange("isActive", v)}
         />
       </View>
 
       <Text style={styles.label}>Danh sách trang</Text>
       {form.pages.length > 0 ? (
-        form.pages.map((page, index) => (
-          <View key={index} style={styles.pageContainer}>
+        form.pages.map((page, idx) => (
+          <View key={idx} style={styles.pageContainer}>
+            <TouchableOpacity
+              onPress={() => removePage(idx)}
+              style={styles.deletePageButton}
+            >
+              <Text style={styles.deletePageButtonText}>🗑 Xóa trang</Text>
+            </TouchableOpacity>
             <Text style={styles.label}>Số trang</Text>
             <TextInput
               style={styles.input}
-              placeholder="Số trang"
               keyboardType="numeric"
-              value={page.pageNumber?.toString() || ''}
-              onChangeText={(text) => handlePageChange(index, 'pageNumber', text)}
-              inputMode="numeric"
+              value={page.pageNumber.toString()}
+              onChangeText={(t) => handlePageChange(idx, "pageNumber", t)}
             />
             <Text style={styles.label}>Nội dung trang</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Nội dung trang"
               multiline
               numberOfLines={4}
-              value={page.content || ''}
-              onChangeText={(text) => handlePageChange(index, 'content', text)}
+              value={page.content}
+              onChangeText={(t) => handlePageChange(idx, "content", t)}
             />
           </View>
         ))
@@ -240,70 +293,64 @@ const EditBookScreen = ({ route, navigation }) => {
       </TouchableOpacity>
 
       <Button
-        title={loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+        title={loading ? "Đang lưu..." : "Lưu thay đổi"}
         onPress={handleSubmit}
         disabled={loading}
       />
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  label: {
-    marginBottom: 5,
-    fontWeight: 'bold',
-    color: '#444',
-  },
+  container: { padding: 20, backgroundColor: "#fff" },
+  label: { marginBottom: 5, fontWeight: "bold", color: "#444" },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
     marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  textArea: { height: 100, textAlignVertical: "top" },
+  loading: { flex: 1, justifyContent: "center", alignItems: "center" },
   switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 15,
   },
   pageContainer: {
     marginBottom: 15,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: "#eee",
     borderRadius: 8,
   },
-  noPagesText: {
-    color: '#666',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
+  noPagesText: { color: "#666", marginBottom: 15, textAlign: "center" },
   addButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     padding: 10,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 15,
   },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  addButtonText: { color: "#fff", fontWeight: "bold" },
+  deletePageButton: {
+    backgroundColor: "#e74c3c",
+    padding: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
   },
+  deletePageButtonText: { color: "#fff", fontWeight: "bold" },
+  coverImage: { width: "100%", height: 200, borderRadius: 8, marginBottom: 10 },
+  imageButton: {
+    backgroundColor: "#3498db",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  imageButtonText: { color: "#fff", fontWeight: "bold" },
 });
-
-export default EditBookScreen;

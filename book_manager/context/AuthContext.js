@@ -8,50 +8,34 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = async (token, fallbackUser = null) => {
+  const login = async (token) => {
     console.log('[DEBUG] Bắt đầu login với token:', token);
-    await AsyncStorage.setItem('authToken', token);
+    await AsyncStorage.setItem('token', token);
     try {
       const res = await getProfile();
-      // Nếu API trả về { data: user } thì lấy res.data.data.user, nếu trả về user thì lấy res.data
-      const userObj = res.data?.data?.user || res.data?.user || res.data;
-      console.log('[DEBUG] Login thành công, user:', userObj);
-      setUser(userObj);
+      console.log('[DEBUG] Login thành công, user:', res.data);
+      setUser(res.data);
     } catch (e) {
       console.log('[DEBUG] Login thất bại:', e.message);
-      if (fallbackUser) {
-        console.log('[DEBUG] setUser từ fallbackUser:', fallbackUser);
-        setUser(fallbackUser);
-      } else {
-        setUser(null);
-      }
+      setUser(null);
     }
   };
 
   const logout = async () => {
     console.log('[DEBUG] Logout - clear AsyncStorage');
-    await AsyncStorage.removeItem('authToken');
+    await AsyncStorage.removeItem('token');
     setUser(null);
   };
 
-  const loadProfile = async (fallbackUser = null) => {
+  const loadProfile = async () => {
     console.log('[DEBUG] Bắt đầu loadProfile');
     try {
       const res = await getProfile();
-      console.log(res);
-
-      const userObj = res.data?.data?.user || res.data?.user || res.data;
-
-      console.log('[DEBUG] loadProfile thành công:', userObj);
-      setUser(userObj.data);
+      console.log('[DEBUG] loadProfile thành công:', res.data);
+      setUser(res.data);
     } catch (e) {
       console.log('[DEBUG] loadProfile thất bại:', e.message);
-      if (fallbackUser) {
-        console.log('[DEBUG] setUser từ fallbackUser:', fallbackUser);
-        setUser(fallbackUser);
-      } else {
-        setUser(null);
-      }
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, loadProfile }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
