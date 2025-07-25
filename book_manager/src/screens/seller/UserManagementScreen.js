@@ -12,7 +12,7 @@ import {
 import { Button, Card } from "react-native-paper";
 import { getAllUsers, toggleBanUser } from "../../api/user";
 
-const BASE_URL = "http://192.168.75.1:3000"; // 🔁 Đổi theo IP backend thật
+const BASE_URL = "http://192.168.2.3:3000"; // 🔁 Đổi theo IP backend thật
 
 const UserManagementScreen = () => {
   const [users, setUsers] = useState([]);

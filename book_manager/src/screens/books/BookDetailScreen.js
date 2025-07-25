@@ -51,7 +51,7 @@ const BookDetailScreen = () => {
       </View>
     );
   }
-  const API_BASE_URL = "http://192.168.75.1:3000/"; // hoặc IP máy backend thực tế
+  const API_BASE_URL = "http://172.16.43.89:3000/"; // hoặc IP máy backend thực tế
   const imageUrl = book.image
     ? `${API_BASE_URL}${book.image.replace(/\\/g, "/")}`
     : null;

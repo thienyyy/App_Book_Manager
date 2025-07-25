@@ -3,8 +3,9 @@ import axios from "axios";
 import { getToken } from "../utils/tokenStorage";
 
 const API = axios.create({
-  baseURL: "http://172.16.40.25:3000/api/",
-  timeout: 10000,
+
+  baseURL: "http://192.168.2.3:3000/api/",
+
 });
 
 // Gắn token tự động vào request
@@ -30,7 +31,7 @@ export const getRatingStats = async () => {
     throw error;
   }
 };
-
+/*
 // 2. Gọi API phân tích hiệu suất sách
 export const getPerformanceAnalysis = async () => {
   try {
@@ -44,4 +45,4 @@ export const getPerformanceAnalysis = async () => {
     );
     throw error;
   }
-};
+};*/

@@ -36,6 +36,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
   };
 
   const handleResetPassword = async () => {
+    
     if (!otp.trim() || !newPassword.trim()) {
       return Alert.alert("Thông báo", "Vui lòng nhập đầy đủ OTP và mật khẩu mới.");
     }

@@ -6,7 +6,7 @@ import { getProfile } from "../../api/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
-const BASE_URL = "http://172.16.40.25:3000";
+const BASE_URL = "http://192.168.2.3:3000";
 
 const ProfileScreen = ({ onLogout }) => {
   const [userData, setUserData] = useState({});
@@ -87,14 +87,14 @@ const ProfileScreen = ({ onLogout }) => {
           </View>
         )}
         <Text style={styles.name}>{userData.name}</Text>
-        <Text style={styles.role}>Role: {userData.role}</Text>
+        <Text style={styles.role}>Vai trò: {userData.role}</Text>
       </View>
 
-      <Divider style={{ marginVertical: 16 }} />
+      <Divider style={styles.divider} />
 
       <Text style={styles.item}>📧 Email: {userData.email}</Text>
 
-      <Divider style={{ marginVertical: 16 }} />
+      <Divider style={styles.divider} />
 
       <Button
         mode="contained"
@@ -130,19 +130,60 @@ const validate = () => {
   return true;
 };
 
-export default ProfileScreen;
-
+// 👉 Style đơn giản, dịu mắt
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  avatarWrapper: { alignItems: "center", marginBottom: 12 },
-  avatar: { width: 100, height: 100, borderRadius: 50 },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#F9FAFB", // nền trắng xám dịu
+  },
+  avatarWrapper: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
   avatarPlaceholder: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#D1D5DB", // xám nhẹ
     justifyContent: "center",
     alignItems: "center",
   },
-  avatarText: { fontSize: 36, fontWeight: "bold" },
-  name: { fontSize: 20, fontWeight: "bold", marginTop: 8 },
-  role: { fontSize: 14, color: "#888" },
-  item: { fontSize: 16, marginBottom: 12 },
+  avatarText: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#374151", // xám đậm
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: "600",
+    marginTop: 10,
+    color: "#1F2937", // xám đậm hơn
+  },
+  role: {
+    fontSize: 14,
+    color: "#6B7280", // xám nhẹ
+    marginTop: 4,
+  },
+  item: {
+    fontSize: 16,
+    color: "#374151",
+    marginBottom: 12,
+  },
+  divider: {
+    marginVertical: 16,
+    height: 1,
+    backgroundColor: "#E5E7EB", // xám nhạt
+  },
+  btnPrimary: {
+    marginBottom: 10,
+    backgroundColor: "#3B82F6", // xanh dương nhẹ
+  },
+  btnLogout: {
+    backgroundColor: "#EF4444", // đỏ dịu
+  },
 });
+
+export default ProfileScreen;

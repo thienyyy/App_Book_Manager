@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { View, Text } from "react-native";
-import { AuthContext } from "./context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 
 function MainTabs() {
   const { user, isLoading } = useContext(AuthContext);

@@ -2,8 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://172.16.40.25:3000/api/users",
-  timeout: 10000,
+
+  baseURL: "http://192.168.2.3:3000/api/users",
+
 });
 
 // ✅ Gắn token test tạm thời (có thể thay bằng getToken() từ AsyncStorage nếu cần động)

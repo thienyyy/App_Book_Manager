@@ -64,7 +64,7 @@ const MyBooksScreen = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <BookCard
       book={item}
-      onPress={() => navigation.navigate("BookDetail", { id: item._id })}
+      onPress={() => navigation.navigate("BookDetailSeller", { id: item._id })}
       onEdit={() => navigation.navigate("EditBook", { id: item._id })}
       onDelete={() => handleDelete(item._id)}
     />
